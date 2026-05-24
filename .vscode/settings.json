@@ -1,0 +1,11 @@
+{
+    "cmake.buildBeforeRun": true,
+    "C_Cpp.errorSquiggles": "enabled",
+    "C_Cpp.intelliSenseEngine": "default",
+
+    "cmake.debugConfig": {
+        "args": [
+        ]
+    }
+}
+
