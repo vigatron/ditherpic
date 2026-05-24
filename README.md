@@ -3,8 +3,8 @@
 [![C++](https://img.shields.io/badge/C%2B%2B-23-blue.svg)](https://isocpp.org/)
 [![CMake](https://img.shields.io/badge/CMake-3.28+-green.svg)](https://cmake.org/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-1.0_test-orange.svg)]()
-[![Platform](https://img.shields.io/badge/platform-CMBoards%20%7C%20FPGA%20%7C%20STM32-lightgrey.svg)]()
+[![Version](https://img.shields.io/badge/version-1.0_test-orange.svg)](https://github.com/vigatron/ditherpic/)
+[![Platform](https://img.shields.io/badge/platform-CMBoards%20%7C%20FPGA%20%7C%20STM32-lightgrey.svg)](https://vigatron.github.io/formats/cells/)
 
 
 VHPIC Images Converter is a specialized desktop utility designed for transforming modern image files into **retro-compatible graphics assets**.  
