@@ -2,22 +2,35 @@
 #include <QTimer>
 #include <QThread>
 
+
+VHCameraObject::VHCameraObject(QObject *parent)
+{
+
+}
+
 /**
  *
  */
-int VHCameraObject::Init()
+int VHCameraObject::Enumerate()
 {
-    // Список камер
     camerasList = QMediaDevices::videoInputs();
 
     for (auto &item : camerasList)
     {
-        qDebug() << "Camera: "
-                 << item.description() << "\n";
+        qDebug() << "Camera: " << item.description();
     }
 
+    return camerasList.size();
+}
+
+/**
+ *
+ */
+bool VHCameraObject::Init(int id)
+{
+
     // Берём первую камеру
-    camera = new QCamera(camerasList.first());
+    camera = new QCamera(camerasList[id]); //  .first()
     session.setCamera(camera);
 
     sink = new QVideoSink;
@@ -29,27 +42,30 @@ int VHCameraObject::Init()
         this,
         &VHCameraObject::ProcessFrame);
 
-    // QCameraFormat fmt = cameras.first().videoFormats().first();
-    // camera->setCameraFormat(fmt);
-    // qDebug() << "Using format:" << fmt.resolution() << fmt.pixelFormat();
+    // SelectFormat();
 
-    SelectFormat();
-
-    return camerasList.size();
+    return true;
 }
 
 /**
- *
+ * 
+ */
+bool VHCameraObject::Deinit() {
+
+    return true;
+}
+
+
+/**
+ * Set Format
  */
 void VHCameraObject::SelectFormat()
 {
-    // Set Format
     for (auto &fmt : camerasList.first().videoFormats())
     {
         qDebug() << "Format:" << fmt.resolution() << fmt.pixelFormat();
     }
     camera->setCameraFormat(camerasList.first().videoFormats().last());
-
 }
 
 /**
@@ -57,10 +73,14 @@ void VHCameraObject::SelectFormat()
  */
 void VHCameraObject::StartCamera()
 {
-    // QThread::sleep(2);
-
     this->camera->start();
+}
 
+/**
+ *
+ */
+void VHCameraObject::StopCamera() {
+    this->camera->stop();
 }
 
 /**
@@ -95,3 +115,7 @@ void VHCameraObject::ProcessFrame(const QVideoFrame &frame)
         qDebug() << "ProcessFrame() exception";
     }
 }
+
+// QCameraFormat fmt = cameras.first().videoFormats().first();
+// camera->setCameraFormat(fmt);
+// qDebug() << "Using format:" << fmt.resolution() << fmt.pixelFormat();

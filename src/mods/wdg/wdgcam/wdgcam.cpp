@@ -7,21 +7,22 @@ void WidgetCamera::Init()
 {
     //
     btnCameraStart = new QPushButton("Camera Start", this);
+    connect(btnCameraStart, &QPushButton::clicked, this, &WidgetCamera::OnClickCameraStart);
 
     //
     btnCameraStop = new QPushButton("Camera Stop", this);
+    connect(btnCameraStart, &QPushButton::clicked, this, &WidgetCamera::OnClickCameraStop);
 
     //
     cmbCameraList = new QComboBox();
+
+    int camscount = camera.Enumerate();
 
     auto camlist = QMediaDevices::videoInputs();
     for(int i=0;i<camlist.size(); i++) {
         const QCameraDevice & cam = camlist[i];
         cmbCameraList->addItem(cam.description());
     }
-    
-    // QStringList distros = {"Debian", "Xubuntu", "Fedora", "Arch", "Gentoo"};
-    // cmbCameraList->addItems(distros);
 
     //
     InitLayout();
@@ -48,7 +49,6 @@ void WidgetCamera::InitLayout()
  */
 void WidgetCamera::StartCamera()
 {
-    camera.Init();
 }
 
 /**
@@ -56,4 +56,21 @@ void WidgetCamera::StartCamera()
  */
 void WidgetCamera::StopCamera()
 {
+}
+
+/**
+ *
+ */
+void WidgetCamera::OnClickCameraStart()
+{
+    int idx = cmbCameraList->currentIndex();
+    camera.Init(idx);
+}
+
+/**
+ *
+ */
+void WidgetCamera::OnClickCameraStop()
+{
+    camera.Deinit();
 }

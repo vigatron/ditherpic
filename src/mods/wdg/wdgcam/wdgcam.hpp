@@ -9,40 +9,40 @@
 
 #include "camera/camera.hpp"
 
-
-class WidgetCamera : public QWidget {
+class WidgetCamera : public QWidget
+{
 
     Q_OBJECT
 
-    public:
+public:
+    explicit WidgetCamera(QWidget *parent = nullptr) { Init(); }
 
-        explicit WidgetCamera(QWidget * parent=nullptr) { Init(); }
+private slots:
 
-    private:
+    void OnClickCameraStart();
+    void OnClickCameraStop();
 
-        // camera object
-        VHCameraObject camera;
+private:
+    // camera object
+    VHCameraObject camera;
 
-        // 
-        QPushButton *   btnCameraStart;
-        QPushButton *   btnCameraStop;
-        QComboBox   *   cmbCameraList;
+    //
+    QPushButton *btnCameraStart;
+    QPushButton *btnCameraStop;
+    QComboBox *cmbCameraList;
 
-        //
-        void Init();
+    //
+    void Init();
 
-        //
-        void InitLayout();
+    //
+    void InitLayout();
 
-        //
-        void StartCamera();
+    //
+    void StartCamera();
 
-        //
-        void StopCamera();
-
+    //
+    void StopCamera();
 
     // auto vlayleft = new QVBoxLayout();
     // vlayleft->addWidget(btnCameraStart);
-
-
 };

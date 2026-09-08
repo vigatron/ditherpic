@@ -12,15 +12,23 @@ class VHCameraObject : public QObject
 {
 Q_OBJECT // обязательно для сигналов/слотов
 
-    public : explicit VHCameraObject(QObject *parent = nullptr)
-    {
-    }
+    public : explicit VHCameraObject(QObject *parent = nullptr);
 
-    int Init();
+    //
+    int Enumerate();
 
+    //
     int camscount() { return camerasList.size(); }
 
+    //
+    bool Init(int id);
+
+    //
+    bool Deinit();
+
+    //
     const QCameraDevice & GetCamera(int n) { return camerasList[n]; }
+
 
 private:
     QCamera *camera;
@@ -33,6 +41,9 @@ private:
 
     //
     void StartCamera();
+
+    //
+    void StopCamera();
 
     //
     void ProcessFrame(const QVideoFrame &frame);
