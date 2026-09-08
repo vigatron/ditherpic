@@ -16,41 +16,38 @@
 #include "wdgimage/wdgimage.hpp"
 #include <qimage.h>
 
-class WidgetImagePanel : public QWidget {
+class WidgetImagePanel : public QWidget
+{
 
     Q_OBJECT
 
-    public:
+public:
+    explicit WidgetImagePanel(
+        const QString &txtLabel,
+        const QString &txtButton,
+        QWidget *parent = nullptr);
 
-        explicit        WidgetImagePanel(
-            const QString & txtLabel,
-            const QString & txtButton,
-            QWidget * parent=nullptr);
+    void setProps(const QString &txtLabel, const QString &txtButton);
 
-        void            setProps(const QString & txtLabel, const QString & txtButton);
+    bool setImage(const QString &fname);
+    bool setImage(const QImage &qimage);
 
-        bool            setImage(const QString & fname);
-        bool            setImage(const QImage  & qimage);
+    const QImage &getImage() const { return wdgimage->GetQImage(); }
 
-        const QImage &  getImage() const { return wdgimage->GetQImage(); }
+private:
+    void Init(const QString &txtLabel, const QString &txtButton);
+    void SetupLayout();
 
-    private:
+signals:
 
-        void            Init(const QString & txtLabel, const QString & txtButton);
-        void            SetupLayout();
+    void buttonClicked();
 
-    signals:
+private slots:
 
-        void            buttonClicked();
+    void onclick() { emit buttonClicked(); }
 
-    private slots:
-
-        void            onclick() { emit buttonClicked(); }
-
-    private:
-
-        QLabel      *   lbl;
-        WidgetImage *   wdgimage;
-        QPushButton *   btn;
-
+private:
+    QLabel *lbl;
+    WidgetImage *wdgimage;
+    QPushButton *btn;
 };

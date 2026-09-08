@@ -20,6 +20,9 @@
 
 #include "dithering.hpp"
 
+//
+#include "wdgcam/wdgcam.hpp"
+
 
 class WidgetDitheringWnd : public QWidget
 {
@@ -28,6 +31,7 @@ class WidgetDitheringWnd : public QWidget
 public:
 
     explicit    WidgetDitheringWnd(QWidget * parent = nullptr);
+
 
 protected:
 
@@ -39,9 +43,11 @@ private slots:
 
 private:
 
+    // Widgets List
     WidgetImagePanel    *   wdgSrcPanel;
     WidgetSettings      *   wdgSettings;
     WidgetImagePanel    *   wdgDstPanel;
+    WidgetCamera        *   wdgCamera;
 
     VHDithering             objDither;
 

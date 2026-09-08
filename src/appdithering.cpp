@@ -32,7 +32,6 @@ int main(int argc, char **argv)
 
     WidgetDitheringWnd *w = new WidgetDitheringWnd();
     w->setWindowTitle("VHPIC Images Converter / V01G04A81 2026");
-    // w->resize(1400, 600);
     w->show();
 
     return app.exec();

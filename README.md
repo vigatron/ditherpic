@@ -74,6 +74,12 @@ The interface is structured cleanly into three main layout sections:
 - Compatible with modern Windows/Linux environments running native window managers or desktop suites.
 - Built-in optimizations for high-concurrency pixel mapping and color quantization pipelines.
 
+## Dependencies
+
+```
+sudo apt install qt6-multimedia-dev
+```
+
 ## Related Tools
 
 - [formats/cells](https://vigatron.github.io/formats/cells/) — Cell specification guidelines.

@@ -34,55 +34,78 @@
 
 #include <QImageWriter>
 
-WidgetDitheringWnd::WidgetDitheringWnd(QWidget * parent)
-    : QWidget(parent) {
+/**
+ * 
+ */
+WidgetDitheringWnd::WidgetDitheringWnd(QWidget *parent)
+    : QWidget(parent)
+{
 
     Init();
-
 }
 
-void WidgetDitheringWnd::Init() {
+/**
+ * 
+ */
+void WidgetDitheringWnd::Init()
+{
 
-    wdgSrcPanel     = new WidgetImagePanel("Source File Name", "Load Picture ...", this );
+    wdgSrcPanel = new WidgetImagePanel("Source File Name", "Load Picture ...", this);
     connect(wdgSrcPanel, &WidgetImagePanel::buttonClicked, this, &WidgetDitheringWnd::OnLoadSource);
 
-    wdgSettings     = new WidgetSettings(this);
+    wdgSettings = new WidgetSettings(this);
     wdgSettings->setEnabled(false);
     connect(wdgSettings, &WidgetSettings::StartConversion, this, &WidgetDitheringWnd::OnConvert);
 
-    wdgDstPanel     = new WidgetImagePanel("Result File Name", "Save Results", this);
+    wdgDstPanel = new WidgetImagePanel("Result File Name", "Save Results", this);
     wdgDstPanel->setEnabled(false);
     connect(wdgDstPanel, &WidgetImagePanel::buttonClicked, this, &WidgetDitheringWnd::OnSaveResult);
+
+    wdgCamera = new WidgetCamera();
 
     SetupLayout();
 }
 
+/**
+ * 
+ */
+void WidgetDitheringWnd::SetupLayout()
+{
 
-void WidgetDitheringWnd::SetupLayout() {
+    auto vlayleft = new QVBoxLayout();
+    vlayleft->addWidget(wdgSrcPanel);
+    vlayleft->addWidget(wdgCamera);
 
+    // Main Layout
     auto hlay = new QHBoxLayout(this);
-    hlay->addWidget(wdgSrcPanel);
+    
+    hlay->addLayout(vlayleft);
+    // hlay->addWidget(wdgSrcPanel);
+
     hlay->addWidget(new VLineSep());
     hlay->addWidget(wdgSettings);
     hlay->addWidget(new VLineSep());
     hlay->addWidget(wdgDstPanel);
-
 }
 
-
-bool convertVHPICtoQImage(const VHPIC256 & vhpic, QImage & dstimg) {
+/**
+ * 
+ */
+bool convertVHPICtoQImage(const VHPIC256 &vhpic, QImage &dstimg)
+{
 
     // Prepare memory buffer
     const int worig = vhpic.width();
     const int horig = vhpic.height();
-    const int ALIGNED_W =  (worig % 4) ? ((worig & ~3) + 4) : worig;
+    const int ALIGNED_W = (worig % 4) ? ((worig & ~3) + 4) : worig;
     const int BUFFER_SZ = ALIGNED_W * horig;
 
-    const std::vector<uint8_t>  srcarr = vhpic.data();
-    std::vector<uint8_t>        dstarr(BUFFER_SZ, 0);
+    const std::vector<uint8_t> srcarr = vhpic.data();
+    std::vector<uint8_t> dstarr(BUFFER_SZ, 0);
 
     // Copy line to aligned line (mod 4)
-    for( int line = 0; line < horig; line++) {
+    for (int line = 0; line < horig; line++)
+    {
         int srcoffs = line * worig;
         int dstoffs = line * ALIGNED_W;
         std::copy(
@@ -92,11 +115,14 @@ bool convertVHPICtoQImage(const VHPIC256 & vhpic, QImage & dstimg) {
     }
 
     // Create result
-    QImage image(dstarr.data(), worig, horig, QImage::Format_Indexed8 );
+    QImage image(dstarr.data(), worig, horig, QImage::Format_Indexed8);
 
     // Set 8-bit palette
     QVector<QRgb> colors;
-    for(int i=0;i<256;i++) { colors.push_back( VHCLR256::GetBGR(i)); }
+    for (int i = 0; i < 256; i++)
+    {
+        colors.push_back(VHCLR256::GetBGR(i));
+    }
     image.setColorCount(256);
     image.setColorTable(colors);
 
@@ -105,15 +131,17 @@ bool convertVHPICtoQImage(const VHPIC256 & vhpic, QImage & dstimg) {
     return true;
 }
 
-
-void WidgetDitheringWnd::OnLoadSource() {
+/**
+ * 
+ */
+void WidgetDitheringWnd::OnLoadSource()
+{
 
     fsrcname = QFileDialog::getOpenFileName(
         this,
         tr("Выберите изображение"),
         QString(), // начальная папка
-        tr("Изображения (*.png *.jpg *.JPG *.jpeg *.bmp)")
-    );
+        tr("Изображения (*.png *.jpg *.JPG *.jpeg *.bmp)"));
 
     // No file selected ?
     if (fsrcname.isEmpty())
@@ -125,17 +153,21 @@ void WidgetDitheringWnd::OnLoadSource() {
     wdgDstPanel->setEnabled(false);
 }
 
-void WidgetDitheringWnd::OnConvert() {
+/**
+ * 
+ */
+void WidgetDitheringWnd::OnConvert()
+{
 
     int idxflt = wdgSettings->idxflt();
-    if(idxflt<0)
+    if (idxflt < 0)
         return;
 
     int idxpal = wdgSettings->idxpal();
-    if(idxpal<0 || idxpal >= VHColors::count )
+    if (idxpal < 0 || idxpal >= VHColors::count)
         return;
 
-    if(!wdgSrcPanel->getImage().width())
+    if (!wdgSrcPanel->getImage().width())
         return;
 
     printf("Conversion started\n");
@@ -145,12 +177,10 @@ void WidgetDitheringWnd::OnConvert() {
     int resox = VHReso::tblResolutions[idxreso].w;
     int resoy = VHReso::tblResolutions[idxreso].h;
 
-    QImage srcimg =  (!resox || !resoy) ?
-        wdgSrcPanel->getImage().copy() : 
-        wdgSrcPanel->getImage().scaled( resox, resoy, Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
+    QImage srcimg = (!resox || !resoy) ? wdgSrcPanel->getImage().copy() : wdgSrcPanel->getImage().scaled(resox, resoy, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 
     // Dithering Process
-    objDither.Dithering(srcimg, vhpic, idxflt, idxpal );
+    objDither.Dithering(srcimg, vhpic, idxflt, idxpal);
 
     // VHPIX to QImage (.png)
     convertVHPICtoQImage(vhpic, imgresult);
@@ -159,22 +189,24 @@ void WidgetDitheringWnd::OnConvert() {
     // Show result
     wdgDstPanel->setImage(imgresult);
     wdgDstPanel->setEnabled(true);
-
 }
 
-void WidgetDitheringWnd::OnSaveResult() {
+/**
+ * 
+ */
+void WidgetDitheringWnd::OnSaveResult()
+{
 
     qDebug() << QImageWriter::supportedImageFormats();
 
-
-    if(!vhpic.width())
+    if (!vhpic.width())
         return;
 
     // Prepare files names
     QFileInfo fi(fsrcname);
     QString base = fi.completeBaseName();
     QString fnamevhpic = fi.path() + "/" + base + "_out.vhpic";
-    QString fnamepng   = fi.path() + "/" + base + "_out.png";
+    QString fnamepng = fi.path() + "/" + base + "_out.png";
 
     // Save VHPix (.vhpic)
     vhpic.Save(fnamevhpic);
@@ -184,25 +216,32 @@ void WidgetDitheringWnd::OnSaveResult() {
     QImage rgbImg = imgresult.convertToFormat(QImage::Format_RGB32);
     rgbImg.save(fnamepng);
     printf("Saved %s \n", QStrToStr(fnamepng));
-
 }
 
-
-bool WidgetDitheringWnd::LoadSourceImage(const QString & fname) {
+/**
+ * 
+ */
+bool WidgetDitheringWnd::LoadSourceImage(const QString &fname)
+{
 
     bool r = wdgSrcPanel->setImage(fname);
-    if(!r) return r;
+    if (!r)
+        return r;
 
-    const QImage &  img  = wdgSrcPanel->getImage();
-    QString         reso = QString::number(img.width()) + "x" + QString::number(img.height());
-    QFileInfo       info(fname);
-    QString         props = reso + " : " + info.fileName();
+    const QImage &img = wdgSrcPanel->getImage();
+    QString reso = QString::number(img.width()) + "x" + QString::number(img.height());
+    QFileInfo info(fname);
+    QString props = reso + " : " + info.fileName();
 
     wdgSrcPanel->setProps(props, "");
 
     return r;
 }
 
-bool WidgetDitheringWnd::SaveResults(const QString & fname) {
+/**
+ * 
+ */
+bool WidgetDitheringWnd::SaveResults(const QString &fname)
+{
     return true;
 }
