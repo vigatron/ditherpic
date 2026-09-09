@@ -15,14 +15,28 @@ class WidgetCamera : public QWidget
     Q_OBJECT
 
 public:
-    explicit WidgetCamera(QWidget *parent = nullptr) { Init(); }
+    explicit WidgetCamera(QWidget *parent = nullptr);
+
+signals:
+
+    // emitted in ProcessFrame
+    void frameReady(const QImage &img);
 
 private slots:
 
+    // Event from button
     void OnClickCameraStart();
+
+    // Event from button
     void OnClickCameraStop();
 
+    // Event from VHCameraObject
+    void onFrameReady(const QImage &img);
+
 private:
+
+    QWidget *parent;
+
     // camera object
     VHCameraObject camera;
 
@@ -33,6 +47,9 @@ private:
 
     //
     void Init();
+
+    //
+    void InitObjects();
 
     //
     void InitLayout();

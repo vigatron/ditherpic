@@ -63,6 +63,11 @@ void WidgetDitheringWnd::Init()
 
     wdgCamera = new WidgetCamera();
 
+    // Receive Frame Events from Widget Camera
+    connect(
+        wdgCamera, &WidgetCamera::frameReady,
+        this, &WidgetDitheringWnd::onFrameReady );
+
     SetupLayout();
 }
 
@@ -72,8 +77,10 @@ void WidgetDitheringWnd::Init()
 void WidgetDitheringWnd::SetupLayout()
 {
 
+    // Left Side ( Image View + Camera settings )
     auto vlayleft = new QVBoxLayout();
     vlayleft->addWidget(wdgSrcPanel);
+    vlayleft->addWidget(new HLineSep());
     vlayleft->addWidget(wdgCamera);
 
     // Main Layout
@@ -244,4 +251,11 @@ bool WidgetDitheringWnd::LoadSourceImage(const QString &fname)
 bool WidgetDitheringWnd::SaveResults(const QString &fname)
 {
     return true;
+}
+
+/**
+ * 
+ */
+void WidgetDitheringWnd::onFrameReady(const QImage &img) {
+    wdgSrcPanel->setImage(img);
 }

@@ -33,13 +33,28 @@ public:
     explicit    WidgetDitheringWnd(QWidget * parent = nullptr);
 
 
-protected:
+private slots:
+
+    //
+    void        OnLoadSource();
+
+    //
+    void        OnConvert();
+
+    //
+    void        OnSaveResult();
 
 private slots:
 
-    void        OnLoadSource();
-    void        OnConvert();
-    void        OnSaveResult();
+    // Event from button
+    // void OnClickCameraStart();
+
+    // Event from button
+    // void OnClickCameraStop();
+
+    // Event from VHCameraObject
+    void onFrameReady(const QImage &img);
+
 
 private:
 

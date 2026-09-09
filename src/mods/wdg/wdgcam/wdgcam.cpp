@@ -3,7 +3,28 @@
 /**
  *
  */
+WidgetCamera::WidgetCamera(QWidget *parent)
+{
+    this->parent = parent;
+    Init();
+}
+
+/**
+ *
+ */
 void WidgetCamera::Init()
+{
+    //
+    InitObjects();
+
+    //
+    InitLayout();
+}
+
+/**
+ *
+ */
+void WidgetCamera::InitObjects()
 {
     //
     btnCameraStart = new QPushButton("Camera Start", this);
@@ -19,13 +40,17 @@ void WidgetCamera::Init()
     int camscount = camera.Enumerate();
 
     auto camlist = QMediaDevices::videoInputs();
-    for(int i=0;i<camlist.size(); i++) {
-        const QCameraDevice & cam = camlist[i];
+    for (int i = 0; i < camlist.size(); i++)
+    {
+        const QCameraDevice &cam = camlist[i];
         cmbCameraList->addItem(cam.description());
     }
 
-    //
-    InitLayout();
+    QObject::connect(
+        &camera,
+        &VHCameraObject::frameReady,
+        this,
+        &WidgetCamera::onFrameReady);
 }
 
 /**
@@ -39,9 +64,8 @@ void WidgetCamera::InitLayout()
     hlay_cam->addWidget(btnCameraStop);
 
     auto vlay_cam = new QVBoxLayout(this);
-    vlay_cam->addLayout(hlay_cam);
     vlay_cam->addWidget(cmbCameraList);
-
+    vlay_cam->addLayout(hlay_cam);
 }
 
 /**
@@ -73,4 +97,12 @@ void WidgetCamera::OnClickCameraStart()
 void WidgetCamera::OnClickCameraStop()
 {
     camera.Deinit();
+}
+
+/**
+ *
+ */
+void WidgetCamera::onFrameReady(const QImage &img)
+{
+    emit frameReady(img);
 }

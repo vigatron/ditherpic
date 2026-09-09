@@ -27,8 +27,12 @@ Q_OBJECT // обязательно для сигналов/слотов
     bool Deinit();
 
     //
-    const QCameraDevice & GetCamera(int n) { return camerasList[n]; }
+    const QCameraDevice &GetCamera(int n) { return camerasList[n]; }
 
+signals:
+
+    // emitted in ProcessFrame
+    void frameReady(const QImage &img);
 
 private:
     QCamera *camera;

@@ -30,7 +30,7 @@ bool VHCameraObject::Init(int id)
 {
 
     // Берём первую камеру
-    camera = new QCamera(camerasList[id]); //  .first()
+    camera = new QCamera(camerasList[id]);
     session.setCamera(camera);
 
     sink = new QVideoSink;
@@ -92,6 +92,13 @@ void VHCameraObject::ProcessFrame(const QVideoFrame &frame)
     if (!frame.isValid())
         return;
 
+    // Inform parent
+    QImage img = frame.toImage();
+    if (!img.isNull()) {
+        emit frameReady(img);
+    }
+
+    // Frame info
     qDebug() << "Кадр:"
              << frame.width()
              << "x"
@@ -99,16 +106,16 @@ void VHCameraObject::ProcessFrame(const QVideoFrame &frame)
              << "формат:"
              << frame.pixelFormat();
 
-    QVideoFrame f(frame);
+    QVideoFrame frame2(frame);
 
-    if (f.map(QVideoFrame::ReadOnly))
+    if (frame2.map(QVideoFrame::ReadOnly))
     {
-        const uchar *data = f.bits(0);
-        int stride = f.bytesPerLine(0);
-        int size = f.mappedBytes(0);
+        const uchar *data = frame2.bits(0);
+        int stride = frame2.bytesPerLine(0);
+        int size = frame2.mappedBytes(0);
 
         qDebug() << "YUV буфер:" << size << "байт, stride:" << stride;
-        f.unmap();
+        frame2.unmap();
     }
     else
     {
