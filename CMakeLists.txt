@@ -42,6 +42,7 @@ file( GLOB_RECURSE source_list_mods
 
     src/mods/wdg/*
     src/mods/wdg/wdgimagepanel/*
+    src/mods/wdg/wdgsettings/*
     src/mods/wdg/wdgcam/*
     src/mods/wdg/wdgapp/*
 )

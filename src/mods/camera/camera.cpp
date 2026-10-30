@@ -58,7 +58,7 @@ bool VHCameraObject::Init(int id)
         this,
         &VHCameraObject::ProcessFrame);
 
-    // SelectFormat();
+    SelectFormat();
 
     return true;
 }
