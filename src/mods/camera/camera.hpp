@@ -72,6 +72,8 @@ private:
     QMediaCaptureSession session;
     QVideoSink *sink;
 
+    bool firstsnap = false;
+
     /**
      * Выбор формата видеопотока
      */

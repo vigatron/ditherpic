@@ -3,12 +3,16 @@ cmake_minimum_required(VERSION 3.16)
 project(appdithervhpic VERSION 0.1.0 LANGUAGES CXX)
 
 # Явно задаем компиляторы до project(), чтобы CMake подхватил их как дефолтные
-set(CMAKE_C_COMPILER gcc)
-set(CMAKE_CXX_COMPILER g++)
+# set(CMAKE_C_COMPILER gcc)
+# set(CMAKE_CXX_COMPILER g++)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+# Подключаем папку с субмодулем
+add_subdirectory(src/extmods/vhlibfsys)
+
 
 # Настройки для Qt6
 set(CMAKE_AUTOMOC ON)
@@ -16,7 +20,9 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets Gui Multimedia)
+
 
 include_directories(src)
 include_directories(src/mods)
@@ -30,23 +36,22 @@ include_directories(src/mods/wdg/wdgimagepanel)
 include_directories(src/mods/wdg/wdgsettings)
 include_directories(src/mods/wdg/wdgapp)
 
-
-file( GLOB_RECURSE source_list_mods
+# Явный список файлов вместо GLOB_RECURSE
+add_executable(appdithervhpic
     src/appdithering.cpp
-    src/mods/tables
-    src/mods/sys/*
-    src/mods/camera/*
-    src/mods/vhpal256/*
-    src/mods/vhpic256/*
-    src/mods/dithering/*
-
-    src/mods/wdg/*
-    src/mods/wdg/wdgimagepanel/*
-    src/mods/wdg/wdgsettings/*
-    src/mods/wdg/wdgcam/*
-    src/mods/wdg/wdgapp/*
+    src/mods/camera/camera.cpp
+    src/mods/dithering/dithering.cpp
+    src/mods/sys/sysfuncs.cpp
+    src/mods/vhpal256/vhcolors256.cpp
+    src/mods/wdg/wdgapp/wdgDitheringWnd.cpp
+    src/mods/wdg/wdgcam/wdgcam.cpp
+    src/mods/wdg/wdgformat.cpp
+    src/mods/wdg/wdgimagepanel/wdgimagepanel.cpp
+    src/mods/wdg/wdgimage/wdgimage.cpp
+    src/mods/wdg/wdgsettings/wdgsettings.cpp
 )
 
-add_executable(appdithervhpic ${source_list_mods} )
-
-target_link_libraries(appdithervhpic PRIVATE Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Multimedia)
+target_link_libraries(appdithervhpic PRIVATE
+    Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Multimedia
+    vhlib_fsys
+)

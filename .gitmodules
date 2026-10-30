@@ -1,0 +1,3 @@
+[submodule "src/extmods/vhlibfsys"]
+	path = src/extmods/vhlibfsys
+	url = https://github.com/vigatron/vhlibfsys

@@ -2,6 +2,11 @@
 #include <QTimer>
 #include <QThread>
 
+#include "vhfile.hpp"
+#include "vhfsys.hpp"
+
+
+
 VHCameraObject::VHCameraObject(QObject *parent) : camera(nullptr)
 {
 }
@@ -154,19 +159,25 @@ void VHCameraObject::ProcessFrame(const QVideoFrame &frame)
 
     QVideoFrame frame2(frame);
 
-    if (frame2.map(QVideoFrame::ReadOnly))
-    {
-        const uchar *data = frame2.bits(0);
-        int stride = frame2.bytesPerLine(0);
-        int size = frame2.mappedBytes(0);
-
-        qDebug() << "YUV буфер:" << size << "байт, stride:" << stride;
-        frame2.unmap();
-    }
-    else
+    if (!frame2.map(QVideoFrame::ReadOnly))
     {
         qDebug() << "ProcessFrame() exception";
+        return;
     }
+
+    const uchar *data = frame2.bits(0);
+    int stride = frame2.bytesPerLine(0);
+    int size = frame2.mappedBytes(0);
+
+    if(!firstsnap) {
+        firstsnap = true;
+        VHFile fileout("yuvv.bin");
+        fileout.write(data, size);
+    }
+
+
+    qDebug() << "YUV буфер:" << size << "байт, stride:" << stride;
+    frame2.unmap();
 }
 
 // QCameraFormat fmt = cameras.first().videoFormats().first();
