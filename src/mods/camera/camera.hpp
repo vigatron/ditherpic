@@ -10,9 +10,14 @@
 
 class VHCameraObject : public QObject
 {
-Q_OBJECT // обязательно для сигналов/слотов
+    Q_OBJECT
 
-    public : explicit VHCameraObject(QObject *parent = nullptr);
+public:
+    //
+    explicit VHCameraObject(QObject *parent = nullptr);
+
+    //
+    ~VHCameraObject();
 
     //
     int Enumerate();

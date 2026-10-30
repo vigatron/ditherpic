@@ -11,6 +11,14 @@ VHCameraObject::VHCameraObject(QObject *parent)
 /**
  *
  */
+VHCameraObject::~VHCameraObject()
+{
+
+}
+
+/**
+ *
+ */
 int VHCameraObject::Enumerate()
 {
     camerasList = QMediaDevices::videoInputs();
