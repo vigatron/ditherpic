@@ -2,10 +2,8 @@
 #include <QTimer>
 #include <QThread>
 
-
-VHCameraObject::VHCameraObject(QObject *parent)
+VHCameraObject::VHCameraObject(QObject *parent) : camera(nullptr)
 {
-
 }
 
 /**
@@ -13,7 +11,6 @@ VHCameraObject::VHCameraObject(QObject *parent)
  */
 VHCameraObject::~VHCameraObject()
 {
-
 }
 
 /**
@@ -32,12 +29,23 @@ int VHCameraObject::Enumerate()
 }
 
 /**
- *
+ * Инициализация камеры по идентификатору
+ * @param id Индекс камеры в списке доступных камер
+ * @return true если инициализация успешна, false в случае ошибки
  */
 bool VHCameraObject::Init(int id)
 {
+    // Очищаем предыдущие ресурсы перед новой инициализацией
+    Deinit();
 
-    // Берём первую камеру
+    // Проверка валидности индекса
+    if (id < 0 || id >= camerasList.size())
+    {
+        qDebug() << "Invalid camera id:" << id << "(max:" << camerasList.size() - 1 << ")";
+        return false;
+    }
+
+    // Берём выбранную камеру
     camera = new QCamera(camerasList[id]);
     session.setCamera(camera);
 
@@ -56,16 +64,44 @@ bool VHCameraObject::Init(int id)
 }
 
 /**
- * 
+ * Очистка ресурсов камеры
+ * Останавливает камеру, отключает сигнатуры и освобождает память
+ * @return true всегда
  */
-bool VHCameraObject::Deinit() {
+bool VHCameraObject::Deinit()
+{
+    if (!camera)
+    {
+        return true;
+    }
+
+    // Останавливаем камеру
+    camera->stop();
+
+    // Отключаем сигнатуру sink -> ProcessFrame
+    if (sink)
+    {
+        QObject::disconnect(
+            sink,
+            &QVideoSink::videoFrameChanged,
+            this,
+            &VHCameraObject::ProcessFrame);
+        delete sink;
+        sink = nullptr;
+    }
+
+    // Уничтожаем камеру
+    delete camera;
+    camera = nullptr;
+
+    // Очищаем сессию
+    session.setCamera(nullptr);
 
     return true;
 }
 
-
 /**
- * Set Format
+ *
  */
 void VHCameraObject::SelectFormat()
 {
@@ -87,7 +123,8 @@ void VHCameraObject::StartCamera()
 /**
  *
  */
-void VHCameraObject::StopCamera() {
+void VHCameraObject::StopCamera()
+{
     this->camera->stop();
 }
 
@@ -102,7 +139,8 @@ void VHCameraObject::ProcessFrame(const QVideoFrame &frame)
 
     // Inform parent
     QImage img = frame.toImage();
-    if (!img.isNull()) {
+    if (!img.isNull())
+    {
         emit frameReady(img);
     }
 

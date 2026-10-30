@@ -32,7 +32,7 @@ void WidgetCamera::InitObjects()
 
     //
     btnCameraStop = new QPushButton("Camera Stop", this);
-    connect(btnCameraStart, &QPushButton::clicked, this, &WidgetCamera::OnClickCameraStop);
+    connect(btnCameraStop, &QPushButton::clicked, this, &WidgetCamera::OnClickCameraStop);
 
     //
     cmbCameraList = new QComboBox();
