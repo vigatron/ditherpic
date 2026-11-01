@@ -107,13 +107,14 @@ private:
     void ProcessFrame(const QVideoFrame &frame);
 };
 
-class WidgetCamera : public QWidget
+//
+class VHWidgetCamera : public QWidget
 {
 
     Q_OBJECT
 
 public:
-    explicit WidgetCamera(QWidget *parent = nullptr);
+    explicit VHWidgetCamera(QWidget *parent = nullptr);
 
 signals:
 

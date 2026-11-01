@@ -186,7 +186,7 @@ void VHCameraObject::ProcessFrame(const QVideoFrame &frame)
 /**
  *
  */
-WidgetCamera::WidgetCamera(QWidget *parent)
+VHWidgetCamera::VHWidgetCamera(QWidget *parent)
 {
     this->parent = parent;
     Init();
@@ -195,7 +195,7 @@ WidgetCamera::WidgetCamera(QWidget *parent)
 /**
  *
  */
-void WidgetCamera::Init()
+void VHWidgetCamera::Init()
 {
     //
     InitObjects();
@@ -207,15 +207,15 @@ void WidgetCamera::Init()
 /**
  *
  */
-void WidgetCamera::InitObjects()
+void VHWidgetCamera::InitObjects()
 {
     //
     btnCameraStart = new QPushButton("Camera Start", this);
-    connect(btnCameraStart, &QPushButton::clicked, this, &WidgetCamera::OnClickCameraStart);
+    connect(btnCameraStart, &QPushButton::clicked, this, &VHWidgetCamera::OnClickCameraStart);
 
     //
     btnCameraStop = new QPushButton("Camera Stop", this);
-    connect(btnCameraStop, &QPushButton::clicked, this, &WidgetCamera::OnClickCameraStop);
+    connect(btnCameraStop, &QPushButton::clicked, this, &VHWidgetCamera::OnClickCameraStop);
 
     //
     cmbCameraList = new QComboBox();
@@ -233,13 +233,13 @@ void WidgetCamera::InitObjects()
         &camera,
         &VHCameraObject::frameReady,
         this,
-        &WidgetCamera::onFrameReady);
+        &VHWidgetCamera::onFrameReady);
 }
 
 /**
  *
  */
-void WidgetCamera::InitLayout()
+void VHWidgetCamera::InitLayout()
 {
     // Cameray H-Layout
     auto hlay_cam = new QHBoxLayout();
@@ -254,21 +254,21 @@ void WidgetCamera::InitLayout()
 /**
  *
  */
-void WidgetCamera::StartCamera()
+void VHWidgetCamera::StartCamera()
 {
 }
 
 /**
  *
  */
-void WidgetCamera::StopCamera()
+void VHWidgetCamera::StopCamera()
 {
 }
 
 /**
  *
  */
-void WidgetCamera::OnClickCameraStart()
+void VHWidgetCamera::OnClickCameraStart()
 {
     int idx = cmbCameraList->currentIndex();
     camera.Init(idx);
@@ -277,7 +277,7 @@ void WidgetCamera::OnClickCameraStart()
 /**
  *
  */
-void WidgetCamera::OnClickCameraStop()
+void VHWidgetCamera::OnClickCameraStop()
 {
     camera.Deinit();
 }
@@ -285,7 +285,7 @@ void WidgetCamera::OnClickCameraStop()
 /**
  *
  */
-void WidgetCamera::onFrameReady(const QImage &img)
+void VHWidgetCamera::onFrameReady(const QImage &img)
 {
     emit frameReady(img);
 }

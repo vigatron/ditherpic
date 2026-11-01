@@ -23,26 +23,26 @@
 //
 #include "wdgcam/wdgcam.hpp"
 
-
 class WidgetDitheringWnd : public QWidget
 {
     Q_OBJECT
 
 public:
-
-    explicit    WidgetDitheringWnd(QWidget * parent = nullptr);
-
+    explicit WidgetDitheringWnd(QWidget *parent = nullptr);
 
 private slots:
 
     //
-    void        OnLoadSource();
+    void OnLoadSource();
 
     //
-    void        OnConvert();
+    void OnConvert();
 
     //
-    void        OnSaveResult();
+    void OnSaveResult();
+
+    //
+    void OnCameraClick();
 
 private slots:
 
@@ -55,26 +55,24 @@ private slots:
     // Event from VHCameraObject
     void onFrameReady(const QImage &img);
 
-
 private:
-
     // Widgets List
-    WidgetImagePanel    *   wdgSrcPanel;
-    WidgetSettings      *   wdgSettings;
-    WidgetImagePanel    *   wdgDstPanel;
-    WidgetCamera        *   wdgCamera;
+    WidgetImagePanel *wdgSrcPanel;
+    WidgetSettings *wdgSettings;
+    WidgetImagePanel *wdgDstPanel;
 
-    VHDithering             objDither;
+    VHWidgetCamera *wdgCamera;
+    QPushButton *wdgPushButtonCamera;
 
-    void                    Init();
-    void                    SetupLayout();
+    VHDithering objDither;
 
-    bool                    LoadSourceImage (const QString & fname);
-    bool                    SaveResults     (const QString & fname);
+    void Init();
+    void SetupLayout();
 
-    QString                 fsrcname;
-    VHPIC256                vhpic;
-    QImage                  imgresult;
+    bool LoadSourceImage(const QString &fname);
+    bool SaveResults(const QString &fname);
 
+    QString fsrcname;
+    VHPIC256 vhpic;
+    QImage imgresult;
 };
-

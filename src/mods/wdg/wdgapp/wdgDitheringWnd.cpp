@@ -35,7 +35,7 @@
 #include <QImageWriter>
 
 /**
- * 
+ *
  */
 WidgetDitheringWnd::WidgetDitheringWnd(QWidget *parent)
     : QWidget(parent)
@@ -45,7 +45,7 @@ WidgetDitheringWnd::WidgetDitheringWnd(QWidget *parent)
 }
 
 /**
- * 
+ *
  */
 void WidgetDitheringWnd::Init()
 {
@@ -61,18 +61,23 @@ void WidgetDitheringWnd::Init()
     wdgDstPanel->setEnabled(false);
     connect(wdgDstPanel, &WidgetImagePanel::buttonClicked, this, &WidgetDitheringWnd::OnSaveResult);
 
-    wdgCamera = new WidgetCamera();
+    // wdgCamera
+    wdgCamera = new VHWidgetCamera();
 
     // Receive Frame Events from Widget Camera
-    connect(
-        wdgCamera, &WidgetCamera::frameReady,
-        this, &WidgetDitheringWnd::onFrameReady );
+    // connect(
+    //     wdgCamera, &WidgetCamera::frameReady,
+    //     this, &WidgetDitheringWnd::onFrameReady );
+
+    // Create Camera Controll button
+    wdgPushButtonCamera = new QPushButton("Turn On Camera");
+    connect(wdgPushButtonCamera, &QPushButton::clicked, this, &WidgetDitheringWnd::OnCameraClick);
 
     SetupLayout();
 }
 
 /**
- * 
+ *
  */
 void WidgetDitheringWnd::SetupLayout()
 {
@@ -81,11 +86,11 @@ void WidgetDitheringWnd::SetupLayout()
     auto vlayleft = new QVBoxLayout();
     vlayleft->addWidget(wdgSrcPanel);
     vlayleft->addWidget(new HLineSep());
-    vlayleft->addWidget(wdgCamera);
+    vlayleft->addWidget(wdgPushButtonCamera);
 
     // Main Layout
     auto hlay = new QHBoxLayout(this);
-    
+
     hlay->addLayout(vlayleft);
     // hlay->addWidget(wdgSrcPanel);
 
@@ -96,7 +101,7 @@ void WidgetDitheringWnd::SetupLayout()
 }
 
 /**
- * 
+ *
  */
 bool convertVHPICtoQImage(const VHPIC256 &vhpic, QImage &dstimg)
 {
@@ -139,7 +144,27 @@ bool convertVHPICtoQImage(const VHPIC256 &vhpic, QImage &dstimg)
 }
 
 /**
- * 
+ *
+ */
+bool WidgetDitheringWnd::LoadSourceImage(const QString &fname)
+{
+
+    bool r = wdgSrcPanel->setImage(fname);
+    if (!r)
+        return r;
+
+    const QImage &img = wdgSrcPanel->getImage();
+    QString reso = QString::number(img.width()) + "x" + QString::number(img.height());
+    QFileInfo info(fname);
+    QString props = reso + " : " + info.fileName();
+
+    wdgSrcPanel->setProps(props, "");
+
+    return r;
+}
+
+/**
+ *
  */
 void WidgetDitheringWnd::OnLoadSource()
 {
@@ -161,7 +186,7 @@ void WidgetDitheringWnd::OnLoadSource()
 }
 
 /**
- * 
+ *
  */
 void WidgetDitheringWnd::OnConvert()
 {
@@ -199,7 +224,7 @@ void WidgetDitheringWnd::OnConvert()
 }
 
 /**
- * 
+ *
  */
 void WidgetDitheringWnd::OnSaveResult()
 {
@@ -226,27 +251,7 @@ void WidgetDitheringWnd::OnSaveResult()
 }
 
 /**
- * 
- */
-bool WidgetDitheringWnd::LoadSourceImage(const QString &fname)
-{
-
-    bool r = wdgSrcPanel->setImage(fname);
-    if (!r)
-        return r;
-
-    const QImage &img = wdgSrcPanel->getImage();
-    QString reso = QString::number(img.width()) + "x" + QString::number(img.height());
-    QFileInfo info(fname);
-    QString props = reso + " : " + info.fileName();
-
-    wdgSrcPanel->setProps(props, "");
-
-    return r;
-}
-
-/**
- * 
+ *
  */
 bool WidgetDitheringWnd::SaveResults(const QString &fname)
 {
@@ -254,8 +259,15 @@ bool WidgetDitheringWnd::SaveResults(const QString &fname)
 }
 
 /**
- * 
+ *
  */
-void WidgetDitheringWnd::onFrameReady(const QImage &img) {
+void WidgetDitheringWnd::onFrameReady(const QImage &img)
+{
     wdgSrcPanel->setImage(img);
+}
+
+/** */
+void WidgetDitheringWnd::OnCameraClick()
+{
+    wdgCamera->show();
 }
