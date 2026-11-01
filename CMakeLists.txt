@@ -39,7 +39,6 @@ include_directories(src/mods/wdg/wdgapp)
 # Явный список файлов вместо GLOB_RECURSE
 add_executable(appdithervhpic
     src/appdithering.cpp
-    src/mods/camera/camera.cpp
     src/mods/dithering/dithering.cpp
     src/mods/sys/sysfuncs.cpp
     src/mods/vhpal256/vhcolors256.cpp
