@@ -13,7 +13,9 @@
 
 #include "vhqt.hpp"
 
-#include "wdgimage/wdgimage.hpp"
+#include "vhwdgcamimg.hpp"
+
+#include "vhwdgcam.hpp"
 #include <qimage.h>
 
 class WidgetImagePanel : public QWidget

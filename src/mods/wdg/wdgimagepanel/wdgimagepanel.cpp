@@ -27,11 +27,11 @@ void WidgetImagePanel::setProps(const QString & txtLabel, const QString & txtBut
 }
 
 bool WidgetImagePanel::setImage(const QString & fname) {
-    return wdgimage->loadimage(fname);
+    return wdgimage->LoadImage(fname);
 }
 
 bool WidgetImagePanel::setImage(const QImage  & qimage) {
-    return wdgimage->setimage(qimage);
+    return wdgimage->SetImage(qimage);
 }
 
 void WidgetImagePanel::Init(const QString & txtLabel, const QString & txtButton) {

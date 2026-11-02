@@ -11,7 +11,8 @@
 
 #include "wdgDitheringWnd.hpp"
 #include "wdg/separators.hpp"
-#include "wdg/wdgimage/wdgimage.hpp"
+
+#include "vhwdgcam.hpp"
 
 #include <QVBoxLayout>
 #include <qboxlayout.h>

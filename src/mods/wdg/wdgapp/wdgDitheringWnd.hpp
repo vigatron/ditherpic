@@ -14,14 +14,12 @@
 #include "vhqt.hpp"
 
 #include "vhpic256/vhpic256.hpp"
-#include "wdgimage/wdgimage.hpp"
 #include "wdgimagepanel/wdgimagepanel.hpp"
 #include "wdgsettings/wdgsettings.hpp"
 
 #include "dithering.hpp"
 
-//
-#include "wdgcam/wdgcam.hpp"
+#include "vhwdgcam.hpp"
 
 class WidgetDitheringWnd : public QWidget
 {

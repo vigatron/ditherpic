@@ -1,3 +1,6 @@
 [submodule "src/extmods/vhlibfsys"]
 	path = src/extmods/vhlibfsys
 	url = https://github.com/vigatron/vhlibfsys
+[submodule "src/extmods/vhlibcamera"]
+	path = src/extmods/vhlibcamera
+	url = https://github.com/vigatron/vhlibcamera
