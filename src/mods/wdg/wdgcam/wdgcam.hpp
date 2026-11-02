@@ -59,19 +59,6 @@ public:
     ~VHWidgetCamera();
 
     /**
-     * @brief Enumerate available cameras
-     * Fills the internal camera list and prints device descriptions to debug output
-     * @return Number of available cameras
-     */
-    int Enumerate();
-
-    /**
-     * @brief Get the number of available cameras
-     * @return Number of cameras in the internal list
-     */
-    int CameraCount() const { return camerasList.size(); }
-
-    /**
      * @brief Open a camera by its index
      * Closes the previously opened camera, creates QCamera and QVideoSink,
      * connects frame processing and applies the video format
@@ -88,11 +75,16 @@ public:
     bool CameraClose();
 
     /**
-     * @brief Get a reference to the camera device by its index
-     * @param n Index of the camera in the available cameras list
-     * @return Reference to the camera device
+     * @brief Start the camera
+     * Resumes the frame stream of an already opened camera
      */
-    const QCameraDevice &GetCamera(int n) const { return camerasList[n]; }
+    void CameraStart();
+
+    /**
+     * @brief Stop the camera
+     * Suspends the frame stream, camera resources are kept alive
+     */
+    void CameraStop();
 
 signals:
 
@@ -103,6 +95,13 @@ signals:
      */
     void frameReady(const QImage &img);
 
+    /**
+     * @brief Error notification
+     * Emitted when the camera cannot be opened, started or reports a device error
+     * @param msg Human readable error description
+     */
+    void errorOccurred(const QString &msg);
+
 private slots:
 
     // Handler of the "Camera Start" button
@@ -110,6 +109,13 @@ private slots:
 
     // Handler of the "Camera Stop" button
     void OnClickCameraStop();
+
+    /**
+     * @brief Handler of the camera selection change
+     * Reopens the capture session on the newly selected camera
+     * @param idx Index of the selected camera
+     */
+    void OnCameraSelected(int idx);
 
 private:
 
@@ -122,8 +128,53 @@ private:
     QMediaCaptureSession session;
     QVideoSink *sink = nullptr;
 
+    // True while the camera is producing frames
+    bool cameraRunning = false;
+
     // Set to true after the first frame has been dumped to a debug file
     bool firstSnap = false;
+
+    /**
+     * @brief Enumerate available cameras
+     * Fills the internal camera list and prints device descriptions to debug output
+     * @return Number of available cameras
+     */
+    int Enumerate();
+
+    /**
+     * @brief Get the number of available cameras
+     * @return Number of cameras in the internal list
+     */
+    int CameraCount() const { return camerasList.size(); }
+
+    /**
+     * @brief Get a reference to the camera device by its index
+     * @param n Index of the camera in the available cameras list
+     * @return Reference to the camera device
+     */
+    const QCameraDevice &GetCamera(int n) const { return camerasList[n]; }
+
+    /**
+     * @brief Select the video format
+     * Assigns the last (maximum) supported format to the selected camera
+     * @param id Index of the camera in the available cameras list
+     */
+    void SelectFormat(int id);
+
+    /**
+     * @brief Process a video frame
+     * Converts the frame to an image, updates the preview area and
+     * emits frameReady() for external listeners
+     * @param frame Video frame received from the capture session
+     */
+    void ProcessFrame(const QVideoFrame &frame);
+
+    /**
+     * @brief Report an error
+     * Prints the message to the log and emits errorOccurred()
+     * @param msg Human readable error description
+     */
+    void ReportError(const QString &msg);
 
     // ------------------------------------------------------------------
     // Widget user interface
@@ -135,46 +186,8 @@ private:
     // Available cameras list
     QComboBox *cmbCameraList;
 
-    // Supported resolutions list
-    QComboBox *cmbResolutionsList;
-
     // Frame preview area
     WidgetImage *wdgImage;
-
-    // ------------------------------------------------------------------
-    // Camera capture methods
-    // ------------------------------------------------------------------
-
-    /**
-     * @brief Select the video format
-     * Assigns the last (maximum) supported format to the selected camera
-     * @param id Index of the camera in the available cameras list
-     */
-    void SelectFormat(int id);
-
-    /**
-     * @brief Start the camera
-     * Resumes the frame stream of an already opened camera
-     */
-    void CameraStart();
-
-    /**
-     * @brief Stop the camera
-     * Suspends the frame stream, camera resources are kept alive
-     */
-    void CameraStop();
-
-    /**
-     * @brief Process a video frame
-     * Converts the frame to an image, notifies listeners and
-     * updates the preview area
-     * @param frame Video frame received from the capture session
-     */
-    void ProcessFrame(const QVideoFrame &frame);
-
-    // ------------------------------------------------------------------
-    // Widget user interface methods
-    // ------------------------------------------------------------------
 
     /**
      * @brief Initialize the widget
@@ -184,8 +197,7 @@ private:
 
     /**
      * @brief Create the child widgets
-     * Creates the camera and resolution lists, the frame preview area
-     * and the capture control buttons
+     * Creates the camera list, the frame preview area and the control buttons
      */
     void UiInitObjects();
 

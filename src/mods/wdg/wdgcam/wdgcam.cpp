@@ -67,11 +67,20 @@ bool VHWidgetCamera::CameraOpen(int id)
     // Release previous resources before opening a new camera
     CameraClose();
 
+    // There is nothing to open without a device
+    if (camerasList.isEmpty())
+    {
+        ReportError("No cameras available");
+        return false;
+    }
+
     // Validate the camera index
     if (id < 0 || id >= camerasList.size())
     {
-        qDebug() << "CameraOpen(): invalid camera id:" << id
-                 << "(max:" << camerasList.size() - 1 << ")";
+        ReportError(
+            QString("Invalid camera index: %1 (max: %2)")
+                .arg(id)
+                .arg(camerasList.size() - 1));
         return false;
     }
 
@@ -88,6 +97,17 @@ bool VHWidgetCamera::CameraOpen(int id)
         this,
         &VHWidgetCamera::ProcessFrame);
 
+    // Forward hardware level errors to the listeners
+    QObject::connect(
+        camera,
+        &QCamera::errorOccurred,
+        this,
+        [this](QCamera::Error err, const QString &txt)
+        {
+            if (err != QCamera::NoError)
+                ReportError(txt);
+        });
+
     SelectFormat(id);
 
     return true;
@@ -100,6 +120,8 @@ bool VHWidgetCamera::CameraOpen(int id)
  */
 bool VHWidgetCamera::CameraClose()
 {
+    cameraRunning = false;
+
     if (!camera)
     {
         return true;
@@ -135,6 +157,38 @@ bool VHWidgetCamera::CameraClose()
 }
 
 /**
+ * @brief Start the camera
+ * Resumes the frame stream of an already opened camera
+ */
+void VHWidgetCamera::CameraStart()
+{
+    if (!camera)
+    {
+        ReportError("Camera is not opened");
+        return;
+    }
+
+    camera->start();
+    cameraRunning = true;
+}
+
+/**
+ * @brief Stop the camera
+ * Suspends the frame stream, camera resources are kept alive
+ */
+void VHWidgetCamera::CameraStop()
+{
+    cameraRunning = false;
+
+    if (!camera)
+    {
+        return;
+    }
+
+    camera->stop();
+}
+
+/**
  * @brief Select the video format
  * Assigns the last (maximum) supported format to the selected camera
  * @param id Index of the camera in the available cameras list
@@ -144,7 +198,6 @@ void VHWidgetCamera::SelectFormat(int id)
     // Validate the camera index
     if (id < 0 || id >= camerasList.size())
     {
-        qDebug() << "SelectFormat(): invalid camera id:" << id;
         return;
     }
 
@@ -152,7 +205,7 @@ void VHWidgetCamera::SelectFormat(int id)
     const QList<QCameraFormat> formats = camerasList[id].videoFormats();
     if (formats.isEmpty())
     {
-        qDebug() << "SelectFormat(): no video formats for camera id:" << id;
+        ReportError("No video formats for the selected camera");
         return;
     }
 
@@ -166,38 +219,9 @@ void VHWidgetCamera::SelectFormat(int id)
 }
 
 /**
- * @brief Start the camera
- * Resumes the frame stream of an already opened camera
- */
-void VHWidgetCamera::CameraStart()
-{
-    if (!camera)
-    {
-        qDebug() << "CameraStart(): camera is not opened";
-        return;
-    }
-
-    camera->start();
-}
-
-/**
- * @brief Stop the camera
- * Suspends the frame stream, camera resources are kept alive
- */
-void VHWidgetCamera::CameraStop()
-{
-    if (!camera)
-    {
-        return;
-    }
-
-    camera->stop();
-}
-
-/**
  * @brief Process a video frame
- * Converts the frame to an image, notifies listeners and
- * updates the preview area
+ * Converts the frame to an image, updates the preview area and
+ * emits frameReady() for external listeners
  * @param frame Video frame received from the capture session
  */
 void VHWidgetCamera::ProcessFrame(const QVideoFrame &frame)
@@ -206,12 +230,13 @@ void VHWidgetCamera::ProcessFrame(const QVideoFrame &frame)
     if (!frame.isValid())
         return;
 
-    // Notify listeners and update the preview area
+    // The frame is always rendered by the internal preview area,
+    // frameReady() is emitted additionally for external listeners
     QImage img = frame.toImage();
     if (!img.isNull())
     {
-        emit frameReady(img);
         wdgImage->setimage(img);
+        emit frameReady(img);
     }
 
     // Frame debug information
@@ -246,6 +271,17 @@ void VHWidgetCamera::ProcessFrame(const QVideoFrame &frame)
     frame2.unmap();
 }
 
+/**
+ * @brief Report an error
+ * Prints the message to the log and emits errorOccurred()
+ * @param msg Human readable error description
+ */
+void VHWidgetCamera::ReportError(const QString &msg)
+{
+    qWarning() << "VHWidgetCamera:" << msg;
+    emit errorOccurred(msg);
+}
+
 // ---------------------------------------------------------------------------
 // Widget user interface
 // ---------------------------------------------------------------------------
@@ -263,8 +299,7 @@ void VHWidgetCamera::UiInit()
 
 /**
  * @brief Create the child widgets
- * Creates the camera and resolution lists, the frame preview area
- * and the capture control buttons
+ * Creates the camera list, the frame preview area and the control buttons
  */
 void VHWidgetCamera::UiInitObjects()
 {
@@ -272,17 +307,12 @@ void VHWidgetCamera::UiInitObjects()
     // Available cameras list
     cmbCameraList = new QComboBox();
 
-    int camscount = Enumerate();
+    Enumerate();
 
-    auto camlist = QMediaDevices::videoInputs();
-    for (int i = 0; i < camlist.size(); i++)
+    for (const QCameraDevice &cam : camerasList)
     {
-        const QCameraDevice &cam = camlist[i];
         cmbCameraList->addItem(cam.description());
     }
-
-    // Supported resolutions list
-    cmbResolutionsList = new QComboBox();
 
     // Frame preview area
     wdgImage = new WidgetImage();
@@ -294,6 +324,14 @@ void VHWidgetCamera::UiInitObjects()
 
     btnCameraStop = new QPushButton("Camera Stop", this);
     connect(btnCameraStop, &QPushButton::clicked, this, &VHWidgetCamera::OnClickCameraStop);
+
+    // Connect the camera selection handler after the list has been filled,
+    // otherwise it would fire on every item insertion
+    connect(
+        cmbCameraList,
+        &QComboBox::currentIndexChanged,
+        this,
+        &VHWidgetCamera::OnCameraSelected);
 }
 
 /**
@@ -310,7 +348,6 @@ void VHWidgetCamera::UiInitLayout()
     // Main widget layout
     auto vlayMain = new QVBoxLayout(this);
     vlayMain->addWidget(cmbCameraList);
-    vlayMain->addWidget(cmbResolutionsList);
     vlayMain->addWidget(wdgImage);
     vlayMain->addLayout(hlayButtons);
 }
@@ -340,4 +377,24 @@ void VHWidgetCamera::OnClickCameraStart()
 void VHWidgetCamera::OnClickCameraStop()
 {
     CameraStop();
+}
+
+/**
+ * @brief Handler of the camera selection change
+ * Reopens the capture session on the newly selected camera
+ * @param idx Index of the selected camera
+ */
+void VHWidgetCamera::OnCameraSelected(int idx)
+{
+    // Nothing to switch if the camera is not opened yet
+    if (!camera || idx < 0)
+        return;
+
+    const bool wasRunning = cameraRunning;
+
+    if (!CameraOpen(idx))
+        return;
+
+    if (wasRunning)
+        CameraStart();
 }
