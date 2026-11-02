@@ -17,18 +17,10 @@
 #include <QMediaCaptureSession>
 #include <QVideoSink>
 #include <QVideoFrame>
-#include <QDebug>
-#include <QTimer>
-#include <QThread>
 
-#include <QHeaderView>
-#include <QTableWidget>
-#include <QStringList>
 #include <QComboBox>
 
 #include "vhqt.hpp"
-#include "vhfile.hpp"
-#include "vhfsys.hpp"
 
 #include "wdgimage/wdgimage.hpp"
 
@@ -131,9 +123,6 @@ private:
     // True while the camera is producing frames
     bool cameraRunning = false;
 
-    // Set to true after the first frame has been dumped to a debug file
-    bool firstSnap = false;
-
     /**
      * @brief Enumerate available cameras
      * Fills the internal camera list and prints device descriptions to debug output
@@ -176,18 +165,24 @@ private:
      */
     void ReportError(const QString &msg);
 
+    /**
+     * @brief Update the control buttons state
+     * Enables the start or the stop button according to the current state
+     */
+    void UpdateControls();
+
     // ------------------------------------------------------------------
     // Widget user interface
     // ------------------------------------------------------------------
 
-    QPushButton *btnCameraStart;
-    QPushButton *btnCameraStop;
+    QPushButton *btnCameraStart = nullptr;
+    QPushButton *btnCameraStop = nullptr;
 
     // Available cameras list
-    QComboBox *cmbCameraList;
+    QComboBox *cmbCameraList = nullptr;
 
     // Frame preview area
-    WidgetImage *wdgImage;
+    WidgetImage *wdgImage = nullptr;
 
     /**
      * @brief Initialize the widget

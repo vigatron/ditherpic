@@ -52,7 +52,7 @@ private slots:
     // Event from button
     // void OnClickCameraStop();
 
-    // Event from VHCameraObject
+    // Event from VHWidgetCamera
     void onFrameReady(const QImage &img);
 
 private:

@@ -10,11 +10,12 @@
  */
 
 #include "wdgcam/wdgcam.hpp"
-#include <QTimer>
-#include <QThread>
 
-#include "vhfile.hpp"
-#include "vhfsys.hpp"
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QPushButton>
+#include <QComboBox>
+#include <QDebug>
 
 // ---------------------------------------------------------------------------
 // Camera capture layer
@@ -110,6 +111,8 @@ bool VHWidgetCamera::CameraOpen(int id)
 
     SelectFormat(id);
 
+    UpdateControls();
+
     return true;
 }
 
@@ -124,6 +127,7 @@ bool VHWidgetCamera::CameraClose()
 
     if (!camera)
     {
+        UpdateControls();
         return true;
     }
 
@@ -153,6 +157,8 @@ bool VHWidgetCamera::CameraClose()
     // Clear the capture session
     session.setCamera(nullptr);
 
+    UpdateControls();
+
     return true;
 }
 
@@ -170,6 +176,8 @@ void VHWidgetCamera::CameraStart()
 
     camera->start();
     cameraRunning = true;
+
+    UpdateControls();
 }
 
 /**
@@ -180,12 +188,12 @@ void VHWidgetCamera::CameraStop()
 {
     cameraRunning = false;
 
-    if (!camera)
+    if (camera)
     {
-        return;
+        camera->stop();
     }
 
-    camera->stop();
+    UpdateControls();
 }
 
 /**
@@ -233,42 +241,11 @@ void VHWidgetCamera::ProcessFrame(const QVideoFrame &frame)
     // The frame is always rendered by the internal preview area,
     // frameReady() is emitted additionally for external listeners
     QImage img = frame.toImage();
-    if (!img.isNull())
-    {
-        wdgImage->setimage(img);
-        emit frameReady(img);
-    }
-
-    // Frame debug information
-    qDebug() << "Кадр:"
-             << frame.width()
-             << "x"
-             << frame.height()
-             << "формат:"
-             << frame.pixelFormat();
-
-    QVideoFrame frame2(frame);
-
-    if (!frame2.map(QVideoFrame::ReadOnly))
-    {
-        qDebug() << "ProcessFrame() exception";
+    if (img.isNull())
         return;
-    }
 
-    const uchar *data = frame2.bits(0);
-    int stride = frame2.bytesPerLine(0);
-    int size = frame2.mappedBytes(0);
-
-    // Dump the first frame to a file for further analysis
-    if (!firstSnap)
-    {
-        firstSnap = true;
-        VHFile fileout("yuvv.bin");
-        fileout.write(data, size);
-    }
-
-    qDebug() << "YUV буфер:" << size << "байт, stride:" << stride;
-    frame2.unmap();
+    wdgImage->setimage(img);
+    emit frameReady(img);
 }
 
 /**
@@ -280,6 +257,24 @@ void VHWidgetCamera::ReportError(const QString &msg)
 {
     qWarning() << "VHWidgetCamera:" << msg;
     emit errorOccurred(msg);
+}
+
+/**
+ * @brief Update the control buttons state
+ * Enables the start or the stop button according to the current state
+ */
+void VHWidgetCamera::UpdateControls()
+{
+    if (!btnCameraStart || !btnCameraStop)
+    {
+        return;
+    }
+
+    // Start is available while no frame stream is running
+    btnCameraStart->setEnabled(!camerasList.isEmpty() && !cameraRunning);
+
+    // Stop is available only while the frame stream is running
+    btnCameraStop->setEnabled(cameraRunning);
 }
 
 // ---------------------------------------------------------------------------
@@ -295,6 +290,8 @@ void VHWidgetCamera::UiInit()
     UiInitObjects();
 
     UiInitLayout();
+
+    UpdateControls();
 }
 
 /**
@@ -316,7 +313,6 @@ void VHWidgetCamera::UiInitObjects()
 
     // Frame preview area
     wdgImage = new WidgetImage();
-    wdgImage->setBaseSize(640, 480);
 
     // Capture control buttons
     btnCameraStart = new QPushButton("Camera Start", this);
