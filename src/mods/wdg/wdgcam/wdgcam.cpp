@@ -6,12 +6,22 @@
 #include "vhfsys.hpp"
 
 /**
- *
+ * @brief Конструктор класса
+ * @param parent Родительский виджет (обычно nullptr)
  */
-VHWidgetCamera::VHWidgetCamera(QWidget *parent) : camera(nullptr)
+VHWidgetCamera::VHWidgetCamera(QWidget *parent)
 {
     this->parent = parent;
     Init();
+}
+
+/**
+ * @brief Деструктор класса
+ * Останавливает камеру и освобождает захваченные ресурсы
+ */
+VHWidgetCamera::~VHWidgetCamera()
+{
+    Deinit();
 }
 
 /**
@@ -59,7 +69,7 @@ bool VHWidgetCamera::Init(int id)
         this,
         &VHWidgetCamera::ProcessFrame);
 
-    SelectFormat();
+    SelectFormat(id);
 
     return true;
 }
@@ -87,6 +97,10 @@ bool VHWidgetCamera::Deinit()
             &QVideoSink::videoFrameChanged,
             this,
             &VHWidgetCamera::ProcessFrame);
+
+        // Сессия не должна хранить указатель на удаляемый sink
+        session.setVideoOutput(nullptr);
+
         delete sink;
         sink = nullptr;
     }
@@ -102,31 +116,63 @@ bool VHWidgetCamera::Deinit()
 }
 
 /**
- *
+ * @brief Выбор формата видеопотока
+ * Назначает выбранной камере последний (максимальный) из поддерживаемых форматов
+ * @param id Индекс камеры в списке доступных камер
  */
-void VHWidgetCamera::SelectFormat()
+void VHWidgetCamera::SelectFormat(int id)
 {
-    for (auto &fmt : camerasList.first().videoFormats())
+    // Проверка валидности индекса
+    if (id < 0 || id >= camerasList.size())
+    {
+        qDebug() << "SelectFormat(): invalid camera id:" << id;
+        return;
+    }
+
+    // Список форматов выбранной камеры
+    const QList<QCameraFormat> formats = camerasList[id].videoFormats();
+    if (formats.isEmpty())
+    {
+        qDebug() << "SelectFormat(): no video formats for camera id:" << id;
+        return;
+    }
+
+    for (const auto &fmt : formats)
     {
         qDebug() << "Format:" << fmt.resolution() << fmt.pixelFormat();
     }
-    camera->setCameraFormat(camerasList.first().videoFormats().last());
+
+    // Выбираем последний (максимальный) формат
+    camera->setCameraFormat(formats.last());
 }
 
 /**
- *
+ * @brief Запуск камеры
+ * Возобновляет поток кадров уже инициализированной камеры
  */
 void VHWidgetCamera::StartCamera()
 {
-    this->camera->start();
+    if (!camera)
+    {
+        qDebug() << "StartCamera(): camera is not initialized";
+        return;
+    }
+
+    camera->start();
 }
 
 /**
- *
+ * @brief Остановка камеры
+ * Приостанавливает поток кадров, ресурсы камеры сохраняются
  */
 void VHWidgetCamera::StopCamera()
 {
-    this->camera->stop();
+    if (!camera)
+    {
+        return;
+    }
+
+    camera->stop();
 }
 
 /**
@@ -143,6 +189,7 @@ void VHWidgetCamera::ProcessFrame(const QVideoFrame &frame)
     if (!img.isNull())
     {
         emit frameReady(img);
+        wdgImage->setimage(img);
     }
 
     // Frame info
@@ -240,20 +287,30 @@ void VHWidgetCamera::InitLayout()
 }
 
 /**
- *
+ * @brief Обработчик кнопки "Camera Start"
+ * При необходимости инициализирует выбранную камеру и запускает поток кадров
  */
 void VHWidgetCamera::OnClickCameraStart()
 {
     int idx = cmbCameraList->currentIndex();
-    Init(idx);
+
+    // Камера ещё не создана - создаём её по выбранному индексу
+    if (!camera)
+    {
+        if (!Init(idx))
+            return;
+    }
+
+    StartCamera();
 }
 
 /**
- *
+ * @brief Обработчик кнопки "Camera Stop"
+ * Приостанавливает поток кадров, ресурсы камеры сохраняются
  */
 void VHWidgetCamera::OnClickCameraStop()
 {
-    Deinit();
+    StopCamera();
 }
 
 // QCameraFormat fmt = cameras.first().videoFormats().first();

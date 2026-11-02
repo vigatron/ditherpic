@@ -28,7 +28,17 @@ class VHWidgetCamera : public QWidget
     Q_OBJECT
 
 public:
+    /**
+     * @brief Конструктор класса
+     * @param parent Родительский виджет (обычно nullptr)
+     */
     explicit VHWidgetCamera(QWidget *parent = nullptr);
+
+    /**
+     * @brief Деструктор класса
+     * Останавливает камеру и освобождает захваченные ресурсы
+     */
+    ~VHWidgetCamera();
 
     /**
      * Перечисление доступных камер
@@ -44,7 +54,7 @@ public:
     int camscount() { return camerasList.size(); }
 
     /**
-     * Инициализация камеры по идентификатору
+     * @brief Инициализация камеры по идентификатору
      * @param id Индекс камеры в списке доступных камер
      * @return true если инициализация успешна, false в случае ошибки
      */
@@ -83,10 +93,10 @@ private:
 
     // --- Camera part (was VHCameraObject) ---
 
-    QCamera *camera;
+    QCamera *camera = nullptr;
     QList<QCameraDevice> camerasList;
     QMediaCaptureSession session;
-    QVideoSink *sink;
+    QVideoSink *sink = nullptr;
 
     bool firstsnap = false;
 
@@ -115,9 +125,11 @@ private:
     void InitLayout();
 
     /**
-     * Выбор формата видеопотока
+     * @brief Выбор формата видеопотока
+     * Назначает выбранной камере последний (максимальный) из поддерживаемых форматов
+     * @param id Индекс камеры в списке доступных камер
      */
-    void SelectFormat();
+    void SelectFormat(int id);
 
     /**
      * Запуск камеры
