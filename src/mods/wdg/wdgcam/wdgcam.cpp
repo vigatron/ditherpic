@@ -5,22 +5,19 @@
 #include "vhfile.hpp"
 #include "vhfsys.hpp"
 
-// VHCameraObject implementation
-VHCameraObject::VHCameraObject(QObject *parent) : camera(nullptr)
+/**
+ *
+ */
+VHWidgetCamera::VHWidgetCamera(QWidget *parent) : camera(nullptr)
 {
+    this->parent = parent;
+    Init();
 }
 
 /**
  *
  */
-VHCameraObject::~VHCameraObject()
-{
-}
-
-/**
- *
- */
-int VHCameraObject::Enumerate()
+int VHWidgetCamera::Enumerate()
 {
     camerasList = QMediaDevices::videoInputs();
 
@@ -37,7 +34,7 @@ int VHCameraObject::Enumerate()
  * @param id Индекс камеры в списке доступных камер
  * @return true если инициализация успешна, false в случае ошибки
  */
-bool VHCameraObject::Init(int id)
+bool VHWidgetCamera::Init(int id)
 {
     // Очищаем предыдущие ресурсы перед новой инициализацией
     Deinit();
@@ -60,7 +57,7 @@ bool VHCameraObject::Init(int id)
         sink,
         &QVideoSink::videoFrameChanged,
         this,
-        &VHCameraObject::ProcessFrame);
+        &VHWidgetCamera::ProcessFrame);
 
     SelectFormat();
 
@@ -72,7 +69,7 @@ bool VHCameraObject::Init(int id)
  * Останавливает камеру, отключает сигнатуры и освобождает память
  * @return true всегда
  */
-bool VHCameraObject::Deinit()
+bool VHWidgetCamera::Deinit()
 {
     if (!camera)
     {
@@ -89,7 +86,7 @@ bool VHCameraObject::Deinit()
             sink,
             &QVideoSink::videoFrameChanged,
             this,
-            &VHCameraObject::ProcessFrame);
+            &VHWidgetCamera::ProcessFrame);
         delete sink;
         sink = nullptr;
     }
@@ -107,7 +104,7 @@ bool VHCameraObject::Deinit()
 /**
  *
  */
-void VHCameraObject::SelectFormat()
+void VHWidgetCamera::SelectFormat()
 {
     for (auto &fmt : camerasList.first().videoFormats())
     {
@@ -119,7 +116,7 @@ void VHCameraObject::SelectFormat()
 /**
  *
  */
-void VHCameraObject::StartCamera()
+void VHWidgetCamera::StartCamera()
 {
     this->camera->start();
 }
@@ -127,7 +124,7 @@ void VHCameraObject::StartCamera()
 /**
  *
  */
-void VHCameraObject::StopCamera()
+void VHWidgetCamera::StopCamera()
 {
     this->camera->stop();
 }
@@ -135,7 +132,7 @@ void VHCameraObject::StopCamera()
 /**
  *
  */
-void VHCameraObject::ProcessFrame(const QVideoFrame &frame)
+void VHWidgetCamera::ProcessFrame(const QVideoFrame &frame)
 {
 
     if (!frame.isValid())
@@ -182,15 +179,6 @@ void VHCameraObject::ProcessFrame(const QVideoFrame &frame)
 /**
  *
  */
-VHWidgetCamera::VHWidgetCamera(QWidget *parent)
-{
-    this->parent = parent;
-    Init();
-}
-
-/**
- *
- */
 void VHWidgetCamera::Init()
 {
     //
@@ -209,7 +197,7 @@ void VHWidgetCamera::InitObjects()
     // Available Camera List
     cmbCameraList = new QComboBox();
 
-    int camscount = camera.Enumerate();
+    int camscount = Enumerate();
 
     auto camlist = QMediaDevices::videoInputs();
     for (int i = 0; i < camlist.size(); i++)
@@ -232,13 +220,6 @@ void VHWidgetCamera::InitObjects()
     //
     btnCameraStop = new QPushButton("Camera Stop", this);
     connect(btnCameraStop, &QPushButton::clicked, this, &VHWidgetCamera::OnClickCameraStop);
-
-    // Camera Object already initialized, just mapping event
-    QObject::connect(
-        &camera,
-        &VHCameraObject::frameReady,
-        this,
-        &VHWidgetCamera::onFrameReady);
 }
 
 /**
@@ -261,24 +242,10 @@ void VHWidgetCamera::InitLayout()
 /**
  *
  */
-void VHWidgetCamera::StartCamera()
-{
-}
-
-/**
- *
- */
-void VHWidgetCamera::StopCamera()
-{
-}
-
-/**
- *
- */
 void VHWidgetCamera::OnClickCameraStart()
 {
     int idx = cmbCameraList->currentIndex();
-    camera.Init(idx);
+    Init(idx);
 }
 
 /**
@@ -286,15 +253,7 @@ void VHWidgetCamera::OnClickCameraStart()
  */
 void VHWidgetCamera::OnClickCameraStop()
 {
-    camera.Deinit();
-}
-
-/**
- *
- */
-void VHWidgetCamera::onFrameReady(const QImage &img)
-{
-    emit frameReady(img);
+    Deinit();
 }
 
 // QCameraFormat fmt = cameras.first().videoFormats().first();

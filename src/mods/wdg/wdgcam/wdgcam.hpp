@@ -21,21 +21,14 @@
 
 #include "wdgimage/wdgimage.hpp"
 
-class VHCameraObject : public QObject
+//
+class VHWidgetCamera : public QWidget
 {
+
     Q_OBJECT
 
 public:
-    /**
-     * Конструктор класса
-     * @param parent Родительский объект (обычно nullptr)
-     */
-    explicit VHCameraObject(QObject *parent = nullptr);
-
-    /**
-     * Деструктор класса
-     */
-    ~VHCameraObject();
+    explicit VHWidgetCamera(QWidget *parent = nullptr);
 
     /**
      * Перечисление доступных камер
@@ -72,53 +65,6 @@ public:
     const QCameraDevice &GetCamera(int n) { return camerasList[n]; }
 
 signals:
-    /**
-     * Сигнал готовности кадра
-     * Излучается в методе ProcessFrame при получении нового кадра
-     * @param img Картинка кадра
-     */
-    void frameReady(const QImage &img);
-
-private:
-    QCamera *camera;
-    QList<QCameraDevice> camerasList;
-    QMediaCaptureSession session;
-    QVideoSink *sink;
-
-    bool firstsnap = false;
-
-    /**
-     * Выбор формата видеопотока
-     */
-    void SelectFormat();
-
-    /**
-     * Запуск камеры
-     */
-    void StartCamera();
-
-    /**
-     * Остановка камеры
-     */
-    void StopCamera();
-
-    /**
-     * Обработка кадра видео
-     * @param frame Кадр видеопотока
-     */
-    void ProcessFrame(const QVideoFrame &frame);
-};
-
-//
-class VHWidgetCamera : public QWidget
-{
-
-    Q_OBJECT
-
-public:
-    explicit VHWidgetCamera(QWidget *parent = nullptr);
-
-signals:
 
     // emitted in ProcessFrame
     void frameReady(const QImage &img);
@@ -131,15 +77,20 @@ private slots:
     // Event from button
     void OnClickCameraStop();
 
-    // Event from VHCameraObject
-    void onFrameReady(const QImage &img);
-
 private:
 
     QWidget *parent;
 
-    // camera object
-    VHCameraObject camera;
+    // --- Camera part (was VHCameraObject) ---
+
+    QCamera *camera;
+    QList<QCameraDevice> camerasList;
+    QMediaCaptureSession session;
+    QVideoSink *sink;
+
+    bool firstsnap = false;
+
+    // --- Widget part ---
 
     //
     QPushButton *btnCameraStart;
@@ -163,11 +114,26 @@ private:
     //
     void InitLayout();
 
-    //
+    /**
+     * Выбор формата видеопотока
+     */
+    void SelectFormat();
+
+    /**
+     * Запуск камеры
+     */
     void StartCamera();
 
-    //
+    /**
+     * Остановка камеры
+     */
     void StopCamera();
+
+    /**
+     * Обработка кадра видео
+     * @param frame Кадр видеопотока
+     */
+    void ProcessFrame(const QVideoFrame &frame);
 
     // auto vlayleft = new QVBoxLayout();
     // vlayleft->addWidget(btnCameraStart);
