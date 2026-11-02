@@ -209,7 +209,8 @@ void WidgetDitheringWnd::OnConvert()
     int resox = VHReso::tblResolutions[idxreso].w;
     int resoy = VHReso::tblResolutions[idxreso].h;
 
-    QImage srcimg = (!resox || !resoy) ? wdgSrcPanel->getImage().copy() : wdgSrcPanel->getImage().scaled(resox, resoy, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    bool flag = !resox || !resoy;
+    QImage srcimg = flag ? wdgSrcPanel->getImage().copy() : wdgSrcPanel->getImage().scaled(resox, resoy, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 
     // Dithering Process
     objDither.Dithering(srcimg, vhpic, idxflt, idxpal);

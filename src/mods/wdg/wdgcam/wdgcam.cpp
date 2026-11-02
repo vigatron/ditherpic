@@ -168,20 +168,16 @@ void VHCameraObject::ProcessFrame(const QVideoFrame &frame)
     int stride = frame2.bytesPerLine(0);
     int size = frame2.mappedBytes(0);
 
-    if(!firstsnap) {
+    if (!firstsnap)
+    {
         firstsnap = true;
         VHFile fileout("yuvv.bin");
         fileout.write(data, size);
     }
 
-
     qDebug() << "YUV буфер:" << size << "байт, stride:" << stride;
     frame2.unmap();
 }
-
-// QCameraFormat fmt = cameras.first().videoFormats().first();
-// camera->setCameraFormat(fmt);
-// qDebug() << "Using format:" << fmt.resolution() << fmt.pixelFormat();
 
 /**
  *
@@ -209,15 +205,8 @@ void VHWidgetCamera::Init()
  */
 void VHWidgetCamera::InitObjects()
 {
-    //
-    btnCameraStart = new QPushButton("Camera Start", this);
-    connect(btnCameraStart, &QPushButton::clicked, this, &VHWidgetCamera::OnClickCameraStart);
 
-    //
-    btnCameraStop = new QPushButton("Camera Stop", this);
-    connect(btnCameraStop, &QPushButton::clicked, this, &VHWidgetCamera::OnClickCameraStop);
-
-    //
+    // Available Camera List
     cmbCameraList = new QComboBox();
 
     int camscount = camera.Enumerate();
@@ -229,6 +218,22 @@ void VHWidgetCamera::InitObjects()
         cmbCameraList->addItem(cam.description());
     }
 
+    // Available Resolution List
+    cmbResolutionsList = new QComboBox();
+
+    //
+    wdgImage = new WidgetImage();
+    wdgImage->setBaseSize(640, 480);
+
+    //
+    btnCameraStart = new QPushButton("Camera Start", this);
+    connect(btnCameraStart, &QPushButton::clicked, this, &VHWidgetCamera::OnClickCameraStart);
+
+    //
+    btnCameraStop = new QPushButton("Camera Stop", this);
+    connect(btnCameraStop, &QPushButton::clicked, this, &VHWidgetCamera::OnClickCameraStop);
+
+    // Camera Object already initialized, just mapping event
     QObject::connect(
         &camera,
         &VHCameraObject::frameReady,
@@ -248,6 +253,8 @@ void VHWidgetCamera::InitLayout()
 
     auto vlay_cam = new QVBoxLayout(this);
     vlay_cam->addWidget(cmbCameraList);
+    vlay_cam->addWidget(cmbResolutionsList);
+    vlay_cam->addWidget(wdgImage);
     vlay_cam->addLayout(hlay_cam);
 }
 
@@ -289,3 +296,7 @@ void VHWidgetCamera::onFrameReady(const QImage &img)
 {
     emit frameReady(img);
 }
+
+// QCameraFormat fmt = cameras.first().videoFormats().first();
+// camera->setCameraFormat(fmt);
+// qDebug() << "Using format:" << fmt.resolution() << fmt.pixelFormat();

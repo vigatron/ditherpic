@@ -19,6 +19,8 @@
 #include "vhfile.hpp"
 #include "vhfsys.hpp"
 
+#include "wdgimage/wdgimage.hpp"
+
 class VHCameraObject : public QObject
 {
     Q_OBJECT
@@ -142,7 +144,15 @@ private:
     //
     QPushButton *btnCameraStart;
     QPushButton *btnCameraStop;
+
+    // Available CAM List
     QComboBox *cmbCameraList;
+
+    // Supported Resolutions List
+    QComboBox *cmbResolutionsList;
+
+    //
+    WidgetImage *wdgImage;
 
     //
     void Init();
