@@ -12,11 +12,13 @@
 #pragma once
 
 #include <QCamera>
+#include <QCameraFormat>
 #include <QCameraDevice>
 #include <QMediaDevices>
 #include <QMediaCaptureSession>
 #include <QVideoSink>
 #include <QVideoFrame>
+#include <QVideoFrameFormat>
 
 #include <QComboBox>
 
@@ -53,7 +55,7 @@ public:
     /**
      * @brief Open a camera by its index
      * Closes the previously opened camera, creates QCamera and QVideoSink,
-     * connects frame processing and applies the video format
+     * connects frame processing and applies the selected video format
      * @param id Index of the camera in the available cameras list
      * @return true on success, false on error
      */
@@ -104,10 +106,18 @@ private slots:
 
     /**
      * @brief Handler of the camera selection change
-     * Reopens the capture session on the newly selected camera
+     * Refreshes the video formats list and reopens the capture session
+     * on the newly selected camera
      * @param idx Index of the selected camera
      */
     void OnCameraSelected(int idx);
+
+    /**
+     * @brief Handler of the video format selection change
+     * Applies the selected format to the opened camera
+     * @param idx Index in the video formats list
+     */
+    void OnFormatSelected(int idx);
 
 private:
 
@@ -122,6 +132,12 @@ private:
 
     // True while the camera is producing frames
     bool cameraRunning = false;
+
+    // Formats supported by the camera currently listed in the UI
+    QList<QCameraFormat> formatsList;
+
+    // Index of the camera the formatsList belongs to, -1 when unknown
+    int uiCameraIndex = -1;
 
     /**
      * @brief Enumerate available cameras
@@ -144,11 +160,20 @@ private:
     const QCameraDevice &GetCamera(int n) const { return camerasList[n]; }
 
     /**
-     * @brief Select the video format
-     * Assigns the last (maximum) supported format to the selected camera
-     * @param id Index of the camera in the available cameras list
+     * @brief Fill the video formats list for the given camera
+     * Repopulates the formats combo, the combo signals are blocked meanwhile.
+     * The last supported format is selected by default
+     * @param camId Index of the camera in the available cameras list
      */
-    void SelectFormat(int id);
+    void UiFillFormats(int camId);
+
+    /**
+     * @brief Apply a video format to the opened camera
+     * Syncs the formats combo with the format actually applied by the backend
+     * @param fmtId Index in the video formats list
+     * @return true on success, false when the camera is closed or the index is invalid
+     */
+    bool ApplyFormat(int fmtId);
 
     /**
      * @brief Process a video frame
@@ -181,6 +206,9 @@ private:
     // Available cameras list
     QComboBox *cmbCameraList = nullptr;
 
+    // Supported video formats list
+    QComboBox *cmbFormatList = nullptr;
+
     // Frame preview area
     WidgetImage *wdgImage = nullptr;
 
@@ -192,7 +220,8 @@ private:
 
     /**
      * @brief Create the child widgets
-     * Creates the camera list, the frame preview area and the control buttons
+     * Creates the camera and formats lists, the frame preview area
+     * and the control buttons
      */
     void UiInitObjects();
 

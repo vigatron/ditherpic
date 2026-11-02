@@ -15,6 +15,8 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QComboBox>
+#include <QSignalBlocker>
+#include <QVideoFrameFormat>
 #include <QDebug>
 
 // ---------------------------------------------------------------------------
@@ -59,7 +61,7 @@ int VHWidgetCamera::Enumerate()
 /**
  * @brief Open a camera by its index
  * Closes the previously opened camera, creates QCamera and QVideoSink,
- * connects frame processing and applies the video format
+ * connects frame processing and applies the selected video format
  * @param id Index of the camera in the available cameras list
  * @return true on success, false on error
  */
@@ -109,7 +111,17 @@ bool VHWidgetCamera::CameraOpen(int id)
                 ReportError(txt);
         });
 
-    SelectFormat(id);
+    // Keep the formats list in sync with the camera being opened
+    if (uiCameraIndex != id)
+    {
+        UiFillFormats(id);
+    }
+
+    // Apply the format chosen in the UI, fall back to the last supported one
+    if (!ApplyFormat(cmbFormatList ? cmbFormatList->currentIndex() : -1))
+    {
+        ApplyFormat(formatsList.size() - 1);
+    }
 
     UpdateControls();
 
@@ -197,33 +209,77 @@ void VHWidgetCamera::CameraStop()
 }
 
 /**
- * @brief Select the video format
- * Assigns the last (maximum) supported format to the selected camera
- * @param id Index of the camera in the available cameras list
+ * @brief Fill the video formats list for the given camera
+ * Repopulates the formats combo, the combo signals are blocked meanwhile.
+ * The last supported format is selected by default
+ * @param camId Index of the camera in the available cameras list
  */
-void VHWidgetCamera::SelectFormat(int id)
+void VHWidgetCamera::UiFillFormats(int camId)
 {
-    // Validate the camera index
-    if (id < 0 || id >= camerasList.size())
+    if (!cmbFormatList)
     {
         return;
     }
 
-    // Formats supported by the selected camera
-    const QList<QCameraFormat> formats = camerasList[id].videoFormats();
-    if (formats.isEmpty())
+    // The combo must not emit while it is being repopulated
+    const QSignalBlocker blocker(cmbFormatList);
+
+    cmbFormatList->clear();
+    formatsList.clear();
+    uiCameraIndex = -1;
+
+    if (camId < 0 || camId >= camerasList.size())
+    {
+        return;
+    }
+
+    formatsList = camerasList[camId].videoFormats();
+    if (formatsList.isEmpty())
     {
         ReportError("No video formats for the selected camera");
         return;
     }
 
-    for (const auto &fmt : formats)
+    for (const QCameraFormat &fmt : formatsList)
     {
-        qDebug() << "Format:" << fmt.resolution() << fmt.pixelFormat();
+        const QSize res = fmt.resolution();
+        cmbFormatList->addItem(
+            QString("%1x%2 %3")
+                .arg(res.width())
+                .arg(res.height())
+                .arg(QVideoFrameFormat::pixelFormatToString(fmt.pixelFormat())));
     }
 
-    // Apply the last (maximum) format
-    camera->setCameraFormat(formats.last());
+    // The last supported format is applied by default
+    cmbFormatList->setCurrentIndex(formatsList.size() - 1);
+
+    uiCameraIndex = camId;
+}
+
+/**
+ * @brief Apply a video format to the opened camera
+ * Syncs the formats combo with the format actually applied by the backend
+ * @param fmtId Index in the video formats list
+ * @return true on success, false when the camera is closed or the index is invalid
+ */
+bool VHWidgetCamera::ApplyFormat(int fmtId)
+{
+    if (!camera || fmtId < 0 || fmtId >= formatsList.size())
+    {
+        return false;
+    }
+
+    camera->setCameraFormat(formatsList[fmtId]);
+
+    // The backend may adjust the requested format, keep the UI in sync
+    const int actualIdx = formatsList.indexOf(camera->cameraFormat());
+    if (cmbFormatList && actualIdx >= 0 && actualIdx != cmbFormatList->currentIndex())
+    {
+        const QSignalBlocker blocker(cmbFormatList);
+        cmbFormatList->setCurrentIndex(actualIdx);
+    }
+
+    return true;
 }
 
 /**
@@ -296,7 +352,8 @@ void VHWidgetCamera::UiInit()
 
 /**
  * @brief Create the child widgets
- * Creates the camera list, the frame preview area and the control buttons
+ * Creates the camera and formats lists, the frame preview area
+ * and the control buttons
  */
 void VHWidgetCamera::UiInitObjects()
 {
@@ -310,6 +367,17 @@ void VHWidgetCamera::UiInitObjects()
     {
         cmbCameraList->addItem(cam.description());
     }
+
+    // Supported video formats list
+    cmbFormatList = new QComboBox();
+    connect(
+        cmbFormatList,
+        &QComboBox::currentIndexChanged,
+        this,
+        &VHWidgetCamera::OnFormatSelected);
+
+    // Formats of the initially selected camera
+    UiFillFormats(cmbCameraList->currentIndex());
 
     // Frame preview area
     wdgImage = new WidgetImage();
@@ -344,6 +412,7 @@ void VHWidgetCamera::UiInitLayout()
     // Main widget layout
     auto vlayMain = new QVBoxLayout(this);
     vlayMain->addWidget(cmbCameraList);
+    vlayMain->addWidget(cmbFormatList);
     vlayMain->addWidget(wdgImage);
     vlayMain->addLayout(hlayButtons);
 }
@@ -377,20 +446,44 @@ void VHWidgetCamera::OnClickCameraStop()
 
 /**
  * @brief Handler of the camera selection change
- * Reopens the capture session on the newly selected camera
+ * Refreshes the video formats list and reopens the capture session
+ * on the newly selected camera
  * @param idx Index of the selected camera
  */
 void VHWidgetCamera::OnCameraSelected(int idx)
 {
-    // Nothing to switch if the camera is not opened yet
-    if (!camera || idx < 0)
+    if (idx < 0)
         return;
 
+    // Refresh the formats list even if the camera is not opened yet
+    UiFillFormats(idx);
+
     const bool wasRunning = cameraRunning;
+
+    // Nothing to switch if the camera is not opened
+    if (!camera)
+        return;
 
     if (!CameraOpen(idx))
         return;
 
     if (wasRunning)
         CameraStart();
+}
+
+/**
+ * @brief Handler of the video format selection change
+ * Applies the selected format to the opened camera
+ * @param idx Index in the video formats list
+ */
+void VHWidgetCamera::OnFormatSelected(int idx)
+{
+    // Nothing to apply while the camera is closed, the selection is kept
+    if (!camera || idx < 0)
+        return;
+
+    if (!ApplyFormat(idx))
+    {
+        ReportError("Cannot apply the selected video format");
+    }
 }
