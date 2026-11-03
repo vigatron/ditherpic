@@ -50,6 +50,6 @@ private slots:
 
 private:
     QLabel *lbl;
-    WidgetImage *wdgimage;
+    VHWidgetCamImage *wdgimage;
     QPushButton *btn;
 };

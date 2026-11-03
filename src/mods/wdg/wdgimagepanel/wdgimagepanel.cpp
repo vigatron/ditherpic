@@ -40,7 +40,7 @@ void WidgetImagePanel::Init(const QString & txtLabel, const QString & txtButton)
     lbl->setAlignment(Qt::AlignCenter);
     lbl->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
-    wdgimage = new WidgetImage();
+    wdgimage = new VHWidgetCamImage();
 
     btn = new QPushButton(txtButton, this);
     connect(btn, &QPushButton::clicked, this, &WidgetImagePanel::onclick);
