@@ -1,0 +1,16 @@
+/* ======================================================================================
+ * Application   : appdithervhpic
+ * Description   : Retro Dithering Utility
+ * Revision      : 0.1.2
+ * Source        : https://github.com/vigatron/ditherpic
+ * Disclaimer    : Provided "AS IS", without warranty.
+ * License       : MIT
+ * File          : ${fname}
+ * Content size  : ${cntsz}
+ * Date / Time   : ${fdatetime}
+ * MD5           : ${fmd5}
+ * Notes         : MD5 = file content without header/footer
+ * Encoding      : UTF-8
+ * Author        : Viktor Glebov / V01G04A81
+ * Copyright     : © 2026 Viktor Glebov
+ * ========================[ BEGIN FILE CONTENT ]====================================== */
