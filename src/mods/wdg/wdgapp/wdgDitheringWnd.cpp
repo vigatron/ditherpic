@@ -51,16 +51,16 @@ WidgetDitheringWnd::WidgetDitheringWnd(QWidget *parent)
 void WidgetDitheringWnd::Init()
 {
 
-    wdgSrcPanel = new WidgetImagePanel("Source File Name", "Load Picture ...", this);
-    connect(wdgSrcPanel, &WidgetImagePanel::buttonClicked, this, &WidgetDitheringWnd::OnLoadSource);
+    wdgSrcPanel = new VHWidgetLeftPanel("Source File Name", "Load Picture ...", this);
+    connect(wdgSrcPanel, &VHWidgetLeftPanel::buttonClicked, this, &WidgetDitheringWnd::OnLoadSource);
 
     wdgSettings = new WidgetSettings(this);
     wdgSettings->setEnabled(false);
     connect(wdgSettings, &WidgetSettings::StartConversion, this, &WidgetDitheringWnd::OnConvert);
 
-    wdgDstPanel = new WidgetImagePanel("Result File Name", "Save Results", this);
+    wdgDstPanel = new VHWidgetRightPanel("Result File Name", "Save Results", this);
     wdgDstPanel->setEnabled(false);
-    connect(wdgDstPanel, &WidgetImagePanel::buttonClicked, this, &WidgetDitheringWnd::OnSaveResult);
+    connect(wdgDstPanel, &VHWidgetRightPanel::buttonClicked, this, &WidgetDitheringWnd::OnSaveResult);
 
     // wdgCamera
     wdgCamera = new VHWidgetCamera();

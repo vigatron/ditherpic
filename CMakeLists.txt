@@ -34,6 +34,8 @@ include_directories(src/mods/wdg)
 include_directories(src/mods/wdg/wdgimagepanel)
 include_directories(src/mods/wdg/wdgsettings)
 include_directories(src/mods/wdg/wdgapp)
+include_directories(src/mods/wdg/wdgleftpanel)
+include_directories(src/mods/wdg/wdgrightpanel)
 
 # Явный список файлов вместо GLOB_RECURSE
 add_executable(appdithervhpic
@@ -44,6 +46,8 @@ add_executable(appdithervhpic
     src/mods/wdg/wdgapp/wdgDitheringWnd.cpp
     src/mods/wdg/wdgformat.cpp
     src/mods/wdg/wdgimagepanel/wdgimagepanel.cpp
+    src/mods/wdg/wdgleftpanel/wdgleftpanel.cpp
+    src/mods/wdg/wdgrightpanel/wdgrightpanel.cpp
     src/mods/wdg/wdgsettings/wdgsettings.cpp
 )
 

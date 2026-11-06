@@ -14,7 +14,8 @@
 #include "vhqt.hpp"
 
 #include "vhpic256/vhpic256.hpp"
-#include "wdgimagepanel/wdgimagepanel.hpp"
+#include "wdgleftpanel/wdgleftpanel.hpp"
+#include "wdgrightpanel/wdgrightpanel.hpp"
 #include "wdgsettings/wdgsettings.hpp"
 
 #include "dithering.hpp"
@@ -56,9 +57,9 @@ private slots:
 private:
 
     // Widgets List
-    WidgetImagePanel *wdgSrcPanel;
+    VHWidgetLeftPanel *wdgSrcPanel;
     WidgetSettings *wdgSettings;
-    WidgetImagePanel *wdgDstPanel;
+    VHWidgetRightPanel *wdgDstPanel;
 
     VHWidgetCamera *wdgCamera;
     QPushButton *wdgPushButtonCamera;
