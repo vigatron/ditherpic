@@ -10,7 +10,7 @@
                 "${workspaceFolder}/src/**"
             ],
             "cStandard": "c17",
-            "cppStandard": "c++23",
+            "cppStandard": "c++17",
             "compilerPath": "/usr/bin/g++",
             "defines": [],
             "intelliSenseMode": "linux-gcc-x64",
