@@ -1,7 +1,7 @@
 /*
  * Application : Retro Dithering Utility
  * Author      : Viktor Glebov / V01G04A81
- * Revision    : 1.0-test
+ * Revision    : 0.1.1
  * Source      : https://github.com/vigatron/ditherpic
  * License     : MIT
  * Disclaimer  : Provided "AS IS", without warranty.
@@ -14,18 +14,10 @@
 
 #include "wdgDitheringWnd.hpp"
 
-/*
 
-WidgetDitheringWnd
-
--------------------------------------------------------
-|                   |               |                 |
-| OriginalPic       | Settings      | ResultPic       |
-|                   |               |                 |
--------------------------------------------------------
-
-*/
-
+/**
+ * 
+ */
 int main(int argc, char **argv)
 {
     QApplication app(argc, argv);

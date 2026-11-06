@@ -54,6 +54,7 @@ private slots:
     void onFrameReady(const QImage &img);
 
 private:
+
     // Widgets List
     WidgetImagePanel *wdgSrcPanel;
     WidgetSettings *wdgSettings;
