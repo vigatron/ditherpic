@@ -43,13 +43,19 @@ private:
 signals:
 
     void buttonClicked();
+    void cameraClicked();
+    void captureClicked();
 
 private slots:
 
     void onclick() { emit buttonClicked(); }
+    void onclickCamera() { emit cameraClicked(); }
+    void onclickCapture() { emit captureClicked(); }
 
 private:
     QLabel *lbl;
     VHWidgetCamImage *wdgimage;
-    QPushButton *btn;
+    QPushButton *btnLoad;
+    QPushButton *btnCamera;
+    QPushButton *btnCapture;
 };

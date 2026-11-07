@@ -104,9 +104,15 @@ void WidgetDitheringWnd::Init()
     //     wdgCamera, &WidgetCamera::frameReady,
     //     this, &WidgetDitheringWnd::onFrameReady );
 
-    // Create Camera Controll button
-    wdgPushButtonCamera = new QPushButton("Turn On Camera");
-    connect(wdgPushButtonCamera, &QPushButton::clicked, this, &WidgetDitheringWnd::OnCameraClick);
+    // Camera button events are emitted via VHWidgetLeftPanel:
+    // btnCamera -> cameraClicked -> OnCameraClick, btnCapture -> captureClicked -> OnCaptureFrame
+    connect(
+        wdgSrcPanel, &VHWidgetLeftPanel::cameraClicked,
+        this, &WidgetDitheringWnd::OnCameraClick );
+
+    connect(
+        wdgSrcPanel, &VHWidgetLeftPanel::captureClicked,
+        this, &WidgetDitheringWnd::OnCaptureFrame );
 
     SetupLayout();
 }
@@ -120,8 +126,6 @@ void WidgetDitheringWnd::SetupLayout()
     // Left Side ( Image View + Camera settings )
     auto vlayleft = new QVBoxLayout();
     vlayleft->addWidget(wdgSrcPanel);
-    vlayleft->addWidget(new HLineSep());
-    vlayleft->addWidget(wdgPushButtonCamera);
 
     // Main Layout
     auto hlay = new QHBoxLayout(this);
@@ -300,6 +304,16 @@ bool WidgetDitheringWnd::SaveResults(const QString &fname)
 void WidgetDitheringWnd::onFrameReady(const QImage &img)
 {
     wdgSrcPanel->setImage(img);
+}
+
+/**
+ * @brief Обработчик нажатия кнопки Capture Frame
+ * Сообщает главному окну, что захват кадра запрошен
+ * TODO: реализовать захват кадра через поток кадров VHWidgetCamera ( frameReady )
+ */
+void WidgetDitheringWnd::OnCaptureFrame()
+{
+    // TODO: захват кадра из потока VHWidgetCamera -> wdgSrcPanel->setImage(...)
 }
 
 /** */

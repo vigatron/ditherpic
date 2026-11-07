@@ -64,6 +64,9 @@ private slots:
     void OnSaveResult();
 
     //
+    void OnCaptureFrame();
+
+    //
     void OnCameraClick();
 
 private slots:
@@ -85,7 +88,6 @@ private:
     VHWidgetRightPanel *wdgDstPanel;
 
     VHWidgetCamera *wdgCamera;
-    QPushButton *wdgPushButtonCamera;
 
     VHDithering objDither;
 

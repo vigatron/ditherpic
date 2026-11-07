@@ -23,7 +23,7 @@ VHWidgetLeftPanel::VHWidgetLeftPanel(
 
 void VHWidgetLeftPanel::setProps(const QString & txtLabel, const QString & txtButton) {
     if(!txtLabel.isEmpty()) lbl->setText(txtLabel);
-    if(!txtButton.isEmpty()) btn->setText(txtButton);
+    if(!txtButton.isEmpty()) btnLoad->setText(txtButton);
 }
 
 bool VHWidgetLeftPanel::setImage(const QString & fname) {
@@ -42,8 +42,14 @@ void VHWidgetLeftPanel::Init(const QString & txtLabel, const QString & txtButton
 
     wdgimage = new VHWidgetCamImage();
 
-    btn = new QPushButton(txtButton, this);
-    connect(btn, &QPushButton::clicked, this, &VHWidgetLeftPanel::onclick);
+    btnLoad = new QPushButton(txtButton, this);
+    connect(btnLoad, &QPushButton::clicked, this, &VHWidgetLeftPanel::onclick);
+
+    btnCamera = new QPushButton("Turn On Camera", this);
+    connect(btnCamera, &QPushButton::clicked, this, &VHWidgetLeftPanel::onclickCamera);
+
+    btnCapture = new QPushButton("Capture Frame", this);
+    connect(btnCapture, &QPushButton::clicked, this, &VHWidgetLeftPanel::onclickCapture);
 
 }
 
@@ -56,6 +62,12 @@ void VHWidgetLeftPanel::SetupLayout() {
     auto vlay = new QVBoxLayout(this);
     vlay->addWidget(lbl, Qt::AlignTop);
     vlay->addLayout(play);
-    vlay->addWidget(btn);
+
+    auto hlayButtons = new QHBoxLayout();
+    hlayButtons->addWidget(btnLoad);
+    hlayButtons->addWidget(btnCamera);
+    hlayButtons->addWidget(btnCapture);
+
+    vlay->addLayout(hlayButtons);
 
 }
