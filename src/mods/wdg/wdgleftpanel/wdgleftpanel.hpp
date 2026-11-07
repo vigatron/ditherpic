@@ -24,20 +24,57 @@ class VHWidgetLeftPanel : public QWidget
     Q_OBJECT
 
 public:
+    /**
+     * @brief Конструктор панели исходного изображения
+     * @param txtLabel Текст подписи над изображением
+     * @param txtButton Текст кнопки загрузки изображения
+     * @param parent Родительский виджет
+     */
     explicit VHWidgetLeftPanel(
         const QString &txtLabel,
         const QString &txtButton,
         QWidget *parent = nullptr);
 
+    /**
+     * @brief Установить подпись и текст кнопки загрузки
+     * Пустые строки игнорируются: соответствующий текст остаётся прежним
+     * @param txtLabel Новый текст подписи
+     * @param txtButton Новый текст кнопки загрузки
+     */
     void setProps(const QString &txtLabel, const QString &txtButton);
 
+    /**
+     * @brief Загрузить изображение из файла
+     * @param fname Путь к файлу изображения
+     * @return true при успешной загрузке, иначе false
+     */
     bool setImage(const QString &fname);
+
+    /**
+     * @brief Установить готовое изображение
+     * Точка входа для кадра камеры: передаёт его в VHWidgetCamImage::SetImage()
+     * @param qimage Изображение (например, кадр от VHWidgetCamera)
+     * @return true если изображение принято, false для пустого изображения
+     */
     bool setImage(const QImage &qimage);
 
+    /**
+     * @brief Получить текущее изображение панели
+     * @return Ссылка на изображение, хранимое виджетом VHWidgetCamImage
+     */
     const QImage &getImage() const { return wdgimage->GetQImage(); }
 
 private:
+    /**
+     * @brief Создать дочерние виджеты панели
+     * @param txtLabel Текст подписи над изображением
+     * @param txtButton Текст кнопки загрузки изображения
+     */
     void Init(const QString &txtLabel, const QString &txtButton);
+
+    /**
+     * @brief Собрать layout панели
+     */
     void SetupLayout();
 
 signals:

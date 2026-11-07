@@ -46,6 +46,13 @@ This makes the tool invaluable for:
   - 1-bit Black & White (Monochrome / 1b B&W)
 
 
+**Camera Capture:**
+  - Live preview from any camera visible to Qt6 Multimedia (`Turn On Camera`).
+  - Camera selection and video format selection directly in the preview window.
+  - `Capture Frame` grabs the last camera frame straight into the **Source** panel
+    (works also while the camera preview is paused) and makes it the current
+    conversion source.
+
 **Target Retro Video Modes:** Automatic aspect-ratio aware resizing or cropping for various display standards:
   - Modern/High-Res: `WUXGA` (1920x1200), `UXGA` (1600x1200), `FHD` (1920x1080)
   - Classic PC: `SXGA` (1280x1024), `XGA` (1024x768), `SVGA` (800x600), `VGA` (640x480)
@@ -56,13 +63,20 @@ This makes the tool invaluable for:
 ## Interface Overview
 
 The interface is structured cleanly into three main layout sections:
-1. **Source Panel (Left):** Load your input graphics (`.jpg`, `.png`, etc.) and view image specifications.
+1. **Source Panel (Left):** Load your input graphics (`.jpg`, `.png`, etc.) or grab a camera frame (`Turn On Camera` + `Capture Frame`) and view image specifications.
 2. **Configuration Panel (Center):** Choose your preferred dithering filter, color count, and target display resolution/video mode.
 3. **Result Panel (Right):** Preview the dithered low-color output before exporting the final image asset.
 
+The **Capture Frame** button is part of the Source panel. It takes the last frame
+delivered by the camera widget, so the frame survives pause / stop of the live preview.
+After a capture the source name becomes `camera_<timestamp>`, and **Save As...**
+writes `camera_<timestamp>_out.vhpic` / `camera_<timestamp>_out.png`
+into the user's home directory.
+
 ## Usage
 
-1. Click **Load Picture...** to open an image file.
+1. Click **Load Picture...** to open an image file, or click **Turn On Camera**,
+   then **Capture Frame** to use a camera snapshot as the source.
 2. Select your desired dithering filter from the **Filters** list.
 3. Select the target bit-depth from the **Colors** panel.
 4. Pick the destination resolution standard from the **Video mode** table.

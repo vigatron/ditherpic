@@ -54,31 +54,42 @@ protected:
 
 private slots:
 
-    //
+    /**
+     * @brief Обработчик нажатия кнопки Load Picture
+     * Открывает диалог выбора файла и загружает изображение в исходную панель
+     */
     void OnLoadSource();
 
-    //
+    /**
+     * @brief Обработчик запуска конвертации
+     * Применяет выбранный фильтр dithering и палитру к исходному изображению
+     */
     void OnConvert();
 
-    //
+    /**
+     * @brief Обработчик сохранения результата
+     * Сохраняет результат в форматах .vhpic и .png
+     */
     void OnSaveResult();
 
-    //
+    /**
+     * @brief Обработчик нажатия кнопки Capture Frame
+     * Захватывает кадр камеры в исходную панель через CaptureImage()
+     */
     void OnCaptureFrame();
 
-    //
+    /**
+     * @brief Обработчик нажатия кнопки Turn On Camera
+     * Показывает окно камеры VHWidgetCamera
+     */
     void OnCameraClick();
 
-private slots:
-
-    // Event from button
-    // void OnClickCameraStart();
-
-    // Event from button
-    // void OnClickCameraStop();
-
-    // Event from VHWidgetCamera
-    void onFrameReady(const QImage &img);
+    /**
+     * @brief Обработчик ошибок камеры
+     * Показывает пользователю сообщение, полученное от VHWidgetCamera
+     * @param msg Текст ошибки
+     */
+    void OnCameraError(const QString &msg);
 
 private:
 
@@ -93,6 +104,15 @@ private:
 
     void Init();
     void SetupLayout();
+
+    /**
+     * @brief Захватить последний кадр камеры в панель исходного изображения
+     * Берёт кадр у VHWidgetCamera (currentImage()), передаёт его в
+     * VHWidgetLeftPanel, который вызывает VHWidgetCamImage::SetImage().
+     * Источником для Save Results становится имя camera_<timestamp>
+     * @return true - кадр передан в панель; false - кадра нет или SetImage() отказал
+     */
+    bool CaptureImage();
 
     bool LoadSourceImage(const QString &fname);
     bool SaveResults(const QString &fname);

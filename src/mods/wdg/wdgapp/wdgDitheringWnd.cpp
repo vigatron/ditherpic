@@ -25,6 +25,8 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QCloseEvent>
+#include <QDateTime>
+#include <QDir>
 
 #include <QGraphicsDropShadowEffect>
 
@@ -99,10 +101,12 @@ void WidgetDitheringWnd::Init()
     wdgCamera = new VHWidgetCamera();
     wdgCamera->setWindowTitle("Camera Preview");
 
-    // Receive Frame Events from Widget Camera
-    // connect(
-    //     wdgCamera, &WidgetCamera::frameReady,
-    //     this, &WidgetDitheringWnd::onFrameReady );
+    // Camera errors are reported to the user. Frame events are not connected:
+    // the camera keeps the last frame itself (VHWidgetCamera::currentImage()),
+    // so only CaptureImage() puts a frame into the source panel
+    connect(
+        wdgCamera, &VHWidgetCamera::errorOccurred,
+        this, &WidgetDitheringWnd::OnCameraError );
 
     // Camera button events are emitted via VHWidgetLeftPanel:
     // btnCamera -> cameraClicked -> OnCameraClick, btnCapture -> captureClicked -> OnCaptureFrame
@@ -299,25 +303,70 @@ bool WidgetDitheringWnd::SaveResults(const QString &fname)
 }
 
 /**
- *
+ * @brief Захватить последний кадр камеры в панель исходного изображения
+ * Последний кадр берётся у окна камеры (VHWidgetCamera::currentImage()) и
+ * передаётся в VHWidgetLeftPanel, который вызывает VHWidgetCamImage::SetImage().
+ * Имя camera_<timestamp> становится источником для Save Results
+ * @return true - кадр передан в панель; false - кадра нет или SetImage() отказал
  */
-void WidgetDitheringWnd::onFrameReady(const QImage &img)
+bool WidgetDitheringWnd::CaptureImage()
 {
-    wdgSrcPanel->setImage(img);
+    if (!wdgCamera)
+        return false;
+
+    // Кадр от VHWidgetCamera (submodule vhlibcamera)
+    const QImage &img = wdgCamera->currentImage();
+    if (img.isNull())
+    {
+        QMessageBox::information(
+            this,
+            tr("Camera"),
+            tr("Нет кадра: включите камеру (Turn On Camera) и дождитесь превью."));
+        return false;
+    }
+
+    // Кадр камеры -> VHWidgetLeftPanel -> VHWidgetCamImage::SetImage()
+    if (!wdgSrcPanel->setImage(img))
+        return false;
+
+    const QImage &src = wdgSrcPanel->getImage();
+    wdgSrcPanel->setProps(
+        QString::number(src.width()) + "x" + QString::number(src.height()) + " : Camera", "");
+
+    // Источник для Save Results: camera_<timestamp>
+    fsrcname = QDir::home().filePath(
+        "camera_" + QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss"));
+
+    wdgSettings->setEnabled(true);
+    wdgDstPanel->setEnabled(false);
+
+    return true;
 }
 
 /**
  * @brief Обработчик нажатия кнопки Capture Frame
- * Сообщает главному окну, что захват кадра запрошен
- * TODO: реализовать захват кадра через поток кадров VHWidgetCamera ( frameReady )
+ * Захватывает последний кадр камеры в исходную панель
  */
 void WidgetDitheringWnd::OnCaptureFrame()
 {
-    // TODO: захват кадра из потока VHWidgetCamera -> wdgSrcPanel->setImage(...)
+    CaptureImage();
 }
 
-/** */
+/**
+ * @brief Обработчик нажатия кнопки Turn On Camera
+ * Показывает окно камеры
+ */
 void WidgetDitheringWnd::OnCameraClick()
 {
     wdgCamera->show();
+}
+
+/**
+ * @brief Обработчик ошибок камеры
+ * Показывает пользователю сообщение, полученное от VHWidgetCamera
+ * @param msg Текст ошибки
+ */
+void WidgetDitheringWnd::OnCameraError(const QString &msg)
+{
+    QMessageBox::warning(this, tr("Camera"), msg);
 }
