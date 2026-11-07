@@ -14,13 +14,21 @@
 
 #include "wdgDitheringWnd.hpp"
 
+/**
+ * @brief Точка входа приложения
+ * @param argc Количество аргументов командной строки
+ * @param argv Аргументы командной строки
+ * @return Код возврата приложения
+ */
 int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
 
-    WidgetDitheringWnd *w = new WidgetDitheringWnd();
-    w->setWindowTitle("VHPIC Images Converter / V01G04A81 2026");
-    w->show();
+    // Объект создаётся на стеке: деструктор окна должен выполняться,
+    // он закрывает камеру и освобождает устройство захвата
+    WidgetDitheringWnd w;
+    w.setWindowTitle("VHPIC Images Converter / V01G04A81 2026");
+    w.show();
 
     return app.exec();
 }

@@ -22,12 +22,35 @@
 
 #include "vhwdgcam.hpp"
 
+class QCloseEvent;
+
 class WidgetDitheringWnd : public QWidget
 {
     Q_OBJECT
 
 public:
+    /**
+     * @brief Конструктор главного окна
+     * @param parent Родительский виджет
+     */
     explicit WidgetDitheringWnd(QWidget *parent = nullptr);
+
+    /**
+     * @brief Деструктор
+     * Закрывает окно камеры и освобождает её ресурсы, чтобы устройство
+     * не осталось занятым после завершения приложения
+     */
+    ~WidgetDitheringWnd();
+
+protected:
+
+    /**
+     * @brief Обработчик закрытия главного окна
+     * Закрывает окно камеры: камера деинициализируется, даже если
+     * пользователь не нажимал Camera Stop
+     * @param event Событие закрытия
+     */
+    void closeEvent(QCloseEvent *event) override;
 
 private slots:
 

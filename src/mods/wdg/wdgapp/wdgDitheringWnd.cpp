@@ -24,6 +24,7 @@
 
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QCloseEvent>
 
 #include <QGraphicsDropShadowEffect>
 
@@ -46,6 +47,38 @@ WidgetDitheringWnd::WidgetDitheringWnd(QWidget *parent)
 }
 
 /**
+ * @brief Деструктор
+ * Закрывает окно камеры и освобождает её ресурсы
+ */
+WidgetDitheringWnd::~WidgetDitheringWnd()
+{
+    if (wdgCamera)
+    {
+        // Останавливает поток кадров и освобождает пайплайн захвата
+        wdgCamera->close();
+
+        delete wdgCamera;
+        wdgCamera = nullptr;
+    }
+}
+
+/**
+ * @brief Обработчик закрытия главного окна
+ * Закрывает окно камеры, чтобы камера была деинициализирована,
+ * даже если пользователь не нажимал Camera Stop
+ * @param event Событие закрытия
+ */
+void WidgetDitheringWnd::closeEvent(QCloseEvent *event)
+{
+    if (wdgCamera)
+    {
+        wdgCamera->close();
+    }
+
+    QWidget::closeEvent(event);
+}
+
+/**
  *
  */
 void WidgetDitheringWnd::Init()
@@ -64,6 +97,7 @@ void WidgetDitheringWnd::Init()
 
     // wdgCamera
     wdgCamera = new VHWidgetCamera();
+    wdgCamera->setWindowTitle("Camera Preview");
 
     // Receive Frame Events from Widget Camera
     // connect(
