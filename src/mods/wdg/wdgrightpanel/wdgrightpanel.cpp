@@ -1,7 +1,7 @@
 /*
  * Application : Retro Dithering Utility
  * Author      : Viktor Glebov / V01G04A81
- * Revision    : 1.0-test
+ * Revision    : 0.1.1
  * Source      : https://github.com/vigatron/ditherpic
  * License     : MIT
  * Disclaimer  : Provided "AS IS", without warranty.
@@ -9,9 +9,9 @@
  * Copyright   : © 2025–2026 Viktor Glebov
  */
 
-#include "wdgimagepanel.hpp"
+#include "wdgrightpanel.hpp"
 
-WidgetImagePanel::WidgetImagePanel(
+VHWidgetRightPanel::VHWidgetRightPanel(
     const QString & txtLabel,
     const QString & txtButton,
     QWidget * parent)
@@ -21,33 +21,33 @@ WidgetImagePanel::WidgetImagePanel(
         SetupLayout();
 }
 
-void WidgetImagePanel::setProps(const QString & txtLabel, const QString & txtButton) {
+void VHWidgetRightPanel::setProps(const QString & txtLabel, const QString & txtButton) {
     if(!txtLabel.isEmpty()) lbl->setText(txtLabel);
     if(!txtButton.isEmpty()) btn->setText(txtButton);
 }
 
-bool WidgetImagePanel::setImage(const QString & fname) {
-    return wdgimage->loadimage(fname);
+bool VHWidgetRightPanel::setImage(const QString & fname) {
+    return wdgimage->LoadImage(fname);
 }
 
-bool WidgetImagePanel::setImage(const QImage  & qimage) {
-    return wdgimage->setimage(qimage);
+bool VHWidgetRightPanel::setImage(const QImage  & qimage) {
+    return wdgimage->SetImage(qimage);
 }
 
-void WidgetImagePanel::Init(const QString & txtLabel, const QString & txtButton) {
+void VHWidgetRightPanel::Init(const QString & txtLabel, const QString & txtButton) {
 
     lbl = new QLabel(txtLabel, this);
     lbl->setAlignment(Qt::AlignCenter);
     lbl->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
-    wdgimage = new WidgetImage();
+    wdgimage = new VHWidgetCamImage();
 
     btn = new QPushButton(txtButton, this);
-    connect(btn, &QPushButton::clicked, this, &WidgetImagePanel::onclick);
+    connect(btn, &QPushButton::clicked, this, &VHWidgetRightPanel::onclick);
 
 }
 
-void WidgetImagePanel::SetupLayout() {
+void VHWidgetRightPanel::SetupLayout() {
 
     auto play = new QVBoxLayout();
     play->setContentsMargins(16, 16, 16, 16);

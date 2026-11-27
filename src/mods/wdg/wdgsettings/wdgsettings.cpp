@@ -1,7 +1,7 @@
 /*
  * Application : Retro Dithering Utility
  * Author      : Viktor Glebov / V01G04A81
- * Revision    : 1.0-test
+ * Revision    : 0.1.1
  * Source      : https://github.com/vigatron/ditherpic
  * License     : MIT
  * Disclaimer  : Provided "AS IS", without warranty.
@@ -15,21 +15,23 @@
 #include "tblreso.hpp"
 #include "tblcolors.hpp"
 
-
-WidgetSettings::WidgetSettings(QWidget * parent) : QWidget(parent) {
+WidgetSettings::WidgetSettings(QWidget *parent) : QWidget(parent)
+{
     setLayout(InitLayout());
 }
 
-void WidgetSettings::OnConvert() {
+void WidgetSettings::OnConvert()
+{
     emit StartConversion();
 }
 
-QVBoxLayout * WidgetSettings::InitLayout() {
+QVBoxLayout *WidgetSettings::InitLayout()
+{
 
     setMinimumWidth(320);
     setMaximumWidth(360);
 
-    btnConvert      = new QPushButton("Convert", this);
+    btnConvert = new QPushButton("Convert", this);
     connect(btnConvert, &QPushButton::clicked, this, &WidgetSettings::OnConvert);
 
     InitFilters();
@@ -56,7 +58,7 @@ QVBoxLayout * WidgetSettings::InitLayout() {
 
     auto hlay = new QHBoxLayout();
     hlay->addWidget(grpFilters, 3);
-    hlay->addWidget(grpColors , 2);
+    hlay->addWidget(grpColors, 2);
 
     auto vlay = new QVBoxLayout(this);
     vlay->addLayout(hlay, 2);
@@ -66,31 +68,38 @@ QVBoxLayout * WidgetSettings::InitLayout() {
     return vlay;
 }
 
-void WidgetSettings::InitFilters() {
+void WidgetSettings::InitFilters()
+{
 
-    grpFilters  = new QGroupBox("Filters", this);
+    grpFilters = new QGroupBox("Filters", this);
 
-    for(int i=0;i<VHDither::count;i++) {
+    for (int i = 0; i < VHDither::count; i++)
+    {
         std::string_view str = VHDither::tblFilters[i].name;
         listWidgetFilters.addItem(
-            QString::fromUtf8(str.data(), str.size()) ); }
+            QString::fromUtf8(str.data(), str.size()));
+    }
 
     listWidgetFilters.setCurrentRow(0);
 }
 
-void WidgetSettings::InitColors() {
+void WidgetSettings::InitColors()
+{
 
-    grpColors   = new QGroupBox("Colors", this);
+    grpColors = new QGroupBox("Colors", this);
 
-    for(int i=0;i<VHColors::count;i++) {
+    for (int i = 0; i < VHColors::count; i++)
+    {
         std::string_view str = VHColors::names[i];
         listWidgetPalettes.addItem(
-            QString::fromUtf8(str.data(), str.size())); }
+            QString::fromUtf8(str.data(), str.size()));
+    }
 
     listWidgetPalettes.setCurrentRow(0);
 }
 
-void WidgetSettings::InitModes() {
+void WidgetSettings::InitModes()
+{
 
     grpModes = new QGroupBox("Video mode", this);
 
@@ -100,19 +109,20 @@ void WidgetSettings::InitModes() {
     tblWidgetModes.horizontalHeader()->setVisible(false);
     tblWidgetModes.verticalHeader()->setVisible(false);
 
-    for(int i=0; i < VHReso::count; i++) {
+    for (int i = 0; i < VHReso::count; i++)
+    {
 
         std::string_view strmode = VHReso::tblResolutions[i].name;
         std::string_view straspc = VHReso::tblResolutions[i].aspc;
 
-        QString txtmode     = QString::fromUtf8(strmode.data(), strmode.size());
+        QString txtmode = QString::fromUtf8(strmode.data(), strmode.size());
 
-        QString txtw        = QString::number(VHReso::tblResolutions[i].w);
-        QString txth        = QString::number(VHReso::tblResolutions[i].h);
-        QString txtreso     = i ? (txtw + ":" + txth) : "";
+        QString txtw = QString::number(VHReso::tblResolutions[i].w);
+        QString txth = QString::number(VHReso::tblResolutions[i].h);
+        QString txtreso = i ? (txtw + ":" + txth) : "";
 
-        QString txta        = QString::fromUtf8(straspc.data(), straspc.size());
-        QString txtaspc     = i ? ("(" + txta + ")") : "";
+        QString txta = QString::fromUtf8(straspc.data(), straspc.size());
+        QString txtaspc = i ? ("(" + txta + ")") : "";
 
         QTableWidgetItem *item0 = new QTableWidgetItem(txtmode);
         // item0->setTextAlignment(Qt::AlignLeft);
@@ -125,18 +135,16 @@ void WidgetSettings::InitModes() {
         QTableWidgetItem *item2 = new QTableWidgetItem(txtaspc);
         item2->setTextAlignment(Qt::AlignCenter);
         tblWidgetModes.setItem(i, 2, item2);
-
     }
 
-    tblWidgetModes.setCurrentCell(0,0);
+    tblWidgetModes.setCurrentCell(0, 0);
     tblWidgetModes.horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     // tblWidgetModes.horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     tblWidgetModes.resizeRowsToContents();
     tblWidgetModes.show();
 
     // Layout для GroupBox
-    QVBoxLayout * layoutModes = new QVBoxLayout;
+    QVBoxLayout *layoutModes = new QVBoxLayout;
     layoutModes->addWidget(&tblWidgetModes);
     grpModes->setLayout(layoutModes);
-
 }

@@ -1,7 +1,7 @@
 /*
  * Application : Retro Dithering Utility
  * Author      : Viktor Glebov / V01G04A81
- * Revision    : 1.0-test
+ * Revision    : 0.1.1
  * Source      : https://github.com/vigatron/ditherpic
  * License     : MIT
  * Disclaimer  : Provided "AS IS", without warranty.
@@ -10,21 +10,32 @@
  */
 
 #include "vhcolors256.hpp"
-
 #include <array>
-#include <vector>
 
 namespace VHCLR256 {
 
-static constexpr std::array<uint32_t, 256> arr_bgr24 = [] {
-std::array<uint32_t,256> v;
-for(int i=0;i<256;i++) v[i] = clr32(i);
-return v; }();
+// Helper constexpr function to populate the color array
+constexpr std::array<uint32_t, 256> make_arr_bgr24() {
+    std::array<uint32_t, 256> v{};
+    for (int i = 0; i < 256; ++i) {
+        v[i] = clr32(i);
+    }
+    return v;
+}
 
+// Static constexpr array initialized via function call (not lambda)
+static constexpr std::array<uint32_t, 256> arr_bgr24 = make_arr_bgr24();
+
+// Get BGR color value by index
 uint32_t GetBGR(uint8_t i) {
     return VHCLR256::arr_bgr24[i];
 }
 
+// Calculate color error (difference) between source BGR color and palette index
+// Parameters:
+//   bgr - source color in BGR24 format
+//   idx - palette index to compare against
+//   dr, dg, db - output pointers for R, G, B error values
 void GetErr(uint32_t bgr, uint8_t idx, int16_t *dr, int16_t *dg, int16_t *db) {
 
     uint8_t r = ( bgr >> 0 ) & 0xFF;

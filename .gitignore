@@ -1,3 +1,10 @@
 .cache
 build
 tmp
+aitasks
+
+# AI Related
+AGENTS.md
+aiscripts
+
+rules

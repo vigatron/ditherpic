@@ -1,9 +1,9 @@
 # VHPIC Images Converter
 
-[![C++](https://img.shields.io/badge/C%2B%2B-23-blue.svg)](https://isocpp.org/)
-[![CMake](https://img.shields.io/badge/CMake-3.28+-green.svg)](https://cmake.org/)
+[![C++](https://img.shields.io/badge/C%2B%2B-17-blue.svg)](https://isocpp.org/)
+[![CMake](https://img.shields.io/badge/CMake-3.16+-green.svg)](https://cmake.org/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-1.0_test-orange.svg)](https://github.com/vigatron/ditherpic/)
+[![Version](https://img.shields.io/badge/version-0.1.1-orange.svg)](https://github.com/vigatron/ditherpic/)
 [![Platform](https://img.shields.io/badge/platform-CMBoards%20%7C%20FPGA%20%7C%20STM32-lightgrey.svg)](https://vigatron.github.io/formats/cells/)
 
 
@@ -36,6 +36,9 @@ This makes the tool invaluable for:
   - Sierra 2-row — faster compromise, good for real-time rendering.
   - Sierra Lite — minimal diffusion, very fast, suited for embedded systems but lower quality.
 
+![appscreen](docs/appdither2.png)
+
+
 **Flexible Color Depth & Modes:**
   - 8-bit Indexed Color (256 colors)
   - 6-bit Indexed Color (64 colors)
@@ -44,6 +47,16 @@ This makes the tool invaluable for:
   - 4-bit Grayscale (16 levels / 4b Gray)
   - 2-bit Grayscale (4 levels / 2b Gray)
   - 1-bit Black & White (Monochrome / 1b B&W)
+
+
+**Camera Capture:**
+  - Live preview from any camera visible to Qt6 Multimedia (`Turn On Camera`).
+  - Camera selection and video format selection directly in the preview window.
+  - `Capture Frame` grabs the last camera frame straight into the **Source** panel
+    (works also while the camera preview is paused) and makes it the current
+    conversion source.
+
+![appscreen](docs/livecam.png)
 
 
 **Target Retro Video Modes:** Automatic aspect-ratio aware resizing or cropping for various display standards:
@@ -56,13 +69,20 @@ This makes the tool invaluable for:
 ## Interface Overview
 
 The interface is structured cleanly into three main layout sections:
-1. **Source Panel (Left):** Load your input graphics (`.jpg`, `.png`, etc.) and view image specifications.
+1. **Source Panel (Left):** Load your input graphics (`.jpg`, `.png`, etc.) or grab a camera frame (`Turn On Camera` + `Capture Frame`) and view image specifications.
 2. **Configuration Panel (Center):** Choose your preferred dithering filter, color count, and target display resolution/video mode.
 3. **Result Panel (Right):** Preview the dithered low-color output before exporting the final image asset.
 
+The **Capture Frame** button is part of the Source panel. It takes the last frame
+delivered by the camera widget, so the frame survives pause / stop of the live preview.
+After a capture the source name becomes `camera_<timestamp>`, and **Save As...**
+writes `camera_<timestamp>_out.vhpic` / `camera_<timestamp>_out.png`
+into the user's home directory.
+
 ## Usage
 
-1. Click **Load Picture...** to open an image file.
+1. Click **Load Picture...** to open an image file, or click **Turn On Camera**,
+   then **Capture Frame** to use a camera snapshot as the source.
 2. Select your desired dithering filter from the **Filters** list.
 3. Select the target bit-depth from the **Colors** panel.
 4. Pick the destination resolution standard from the **Video mode** table.
@@ -73,6 +93,12 @@ The interface is structured cleanly into three main layout sections:
 
 - Compatible with modern Windows/Linux environments running native window managers or desktop suites.
 - Built-in optimizations for high-concurrency pixel mapping and color quantization pipelines.
+
+## Dependencies
+
+```
+sudo apt install qt6-multimedia-dev
+```
 
 ## Related Tools
 
