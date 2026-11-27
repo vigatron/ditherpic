@@ -36,6 +36,9 @@ This makes the tool invaluable for:
   - Sierra 2-row — faster compromise, good for real-time rendering.
   - Sierra Lite — minimal diffusion, very fast, suited for embedded systems but lower quality.
 
+![appscreen](docs/appdither2.png)
+
+
 **Flexible Color Depth & Modes:**
   - 8-bit Indexed Color (256 colors)
   - 6-bit Indexed Color (64 colors)
@@ -52,6 +55,9 @@ This makes the tool invaluable for:
   - `Capture Frame` grabs the last camera frame straight into the **Source** panel
     (works also while the camera preview is paused) and makes it the current
     conversion source.
+
+![appscreen](docs/livecam.png)
+
 
 **Target Retro Video Modes:** Automatic aspect-ratio aware resizing or cropping for various display standards:
   - Modern/High-Res: `WUXGA` (1920x1200), `UXGA` (1600x1200), `FHD` (1920x1080)
